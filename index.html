@@ -38,27 +38,27 @@
                     <div class="card-body">
                         <h5 class="card-title">Character sheet</h5>
                         <div class="row mb-2">
-                            <div class="col-sm-8">
+                            <div class="col-sm-7">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text input-group-text-fixed-w">Level</span>
                                     </div>
-                                    <input type="number" class="form-control text-center" v-model="level">
+                                    <input type="text" class="form-control text-center" v-model="level">
                                 </div>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-8 mb-2">
+                            <div class="col-sm-7 mb-2">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text input-group-text-fixed-w">HP</span>
                                     </div>
-                                    <input type="number" class="form-control text-center" v-model="hp.current">
-                                    <input type="number" class="form-control text-center" v-model="hp.max">
+                                    <input type="text" class="form-control text-center" v-model="hp.current">
+                                    <input type="text" class="form-control text-center" v-model="hp.max">
                                 </div>
                             </div>
-                            <div class="col-sm-4 mb-2">
+                            <div class="col-sm-5 mb-2">
                                 <div class="input-group">
                                     <select class="custom-select" v-model="damage_mod">
                                         <option selected value="0">Choose...</option>
@@ -88,8 +88,8 @@
                         <stat-line :stat="barkskin"></stat-line>
                         <stat-line :stat="elemental_fury"></stat-line>
                         <stat-line :stat="shadow_clone"></stat-line>
-                        <stat-line :stat="diamond_soul"></stat-line>
                         <stat-line :stat="vanishing_trick"></stat-line>
+                        <stat-line :stat="diamond_soul"></stat-line>
                     </div>
                 </div>
 
@@ -105,6 +105,33 @@
                 </div>
             </div>
         </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Hit probability</h5>
+                <div class="row mb-2">
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text input-group-text-fixed-w">BAB</span>
+                            </div>
+                            <input type="number" class="form-control text-center" v-model="bab">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text input-group-text-fixed-w">Crit dice</span>
+                            </div>
+                            <input type="number" class="form-control text-center" v-model="crit">
+                        </div>
+                    </div>
+                </div>
+
+                <hit-rate-table :bab="bab" :crit="crit"></hit-rate-table>
+            </div>
+        </div>
+
     </div>
     <script type="text/javascript" src="js/combat-tool.js"></script>
 </body>
