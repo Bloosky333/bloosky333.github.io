@@ -5,3 +5,8 @@ body {
 .input-group-text-fixed-w {
     width: 150px;
 }
+
+.table-sticky {
+    position: sticky;
+    left: 0px;
+}

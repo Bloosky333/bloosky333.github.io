@@ -101,7 +101,7 @@ Vue.component('hit-rate-table', {
             </thead>
             <tbody>
                 <tr v-for="row in table">
-                    <th>{{row.header}}</th>
+                    <th class="table-dark table-sticky">{{row.header}}</th>
                     <td v-for="cell in row.row" :class="{'table-success': cell>=80, 'table-warning': cell<80 && cell >=50, 'table-danger': cell<50}">{{ cell }}</td>
                 </tr>
             </tbody>
