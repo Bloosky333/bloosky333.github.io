@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Pathfinder Combat Tool</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -24,9 +26,20 @@
                         <button type="button" class="btn btn-warning" @click="nextTurn"><i class="fa fa-step-forward"></i> Next turn : <b>{{ current_turn }}</b></button>
                     </div>
                     <div class="col-6 text-right">
-                        <button type="button" class="btn btn-secondary" @click="reset()"><i class="fa fa-refresh"></i> Reset</button>
-                        <button type="button" class="btn btn-secondary" @click="load()"><i class="fa fa-folder-open"></i> Load</button>
-                        <button type="button" class="btn btn-secondary" @click="save()"><i class="fa fa-save"></i> Save</button>
+                        <button type="button" class="btn btn-secondary d-none d-sm-none d-md-inline-block" @click="reset()"><i class="fa fa-refresh"></i> Reset</button>
+                        <button type="button" class="btn btn-secondary d-none d-sm-none d-md-inline-block" @click="load()"><i class="fa fa-folder-open"></i> Load</button>
+                        <button type="button" class="btn btn-secondary d-none d-sm-none d-md-inline-block" @click="save()"><i class="fa fa-save"></i> Save</button>
+                        <div class="dropdown d-sm-inline-block d-md-none">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                More
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" @click="reset()"><i class="fa fa-refresh"></i> Reset</a>
+                                <a class="dropdown-item" href="#" @click="load()"><i class="fa fa-folder-open"></i> Load</a>
+                                <a class="dropdown-item" href="#" @click="save()"><i class="fa fa-save"></i> Save</a>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
