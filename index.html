@@ -9,11 +9,23 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script type="text/javascript" src="combat-tool.js"></script>
 </head>
 <body>
 <div class="container" id="combat-tool">
     <h1>Pathfinder Combat Tool</h1>
     {{message}}
+
+    <div class="row">
+        <div class="col-3">
+            Level
+        </div>
+        <div class="col-3">
+            {{level}}
+        </div>
+    </div>
+
+    <input type="text" v-model="level" placeholder="Level">
 </div>
 
 
