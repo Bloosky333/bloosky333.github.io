@@ -11,11 +11,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
-    <style>
-        body {
-            background: #f8f9fa;
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
+
 </head>
 <body>
     <div class="container mt-4" id="combat-tool">
@@ -27,14 +24,16 @@
                         <button type="button" class="btn btn-warning" @click="nextTurn"><i class="fa fa-step-forward"></i> Next turn : <b>{{ current_turn }}</b></button>
                     </div>
                     <div class="col-6 text-right">
-                        <button type="button" class="btn btn-secondary"><i class="fa fa-refresh"></i> Reset</button>
+                        <button type="button" class="btn btn-secondary" @click="reset()"><i class="fa fa-refresh"></i> Reset</button>
+                        <button type="button" class="btn btn-secondary" @click="load()"><i class="fa fa-folder-open"></i> Load</button>
+                        <button type="button" class="btn btn-secondary" @click="save()"><i class="fa fa-save"></i> Save</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-6">
+            <div class="col-md-12 col-lg-6">
                 <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Character sheet</h5>
@@ -42,26 +41,24 @@
                             <div class="col-sm-8">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text" style="width: 150px">Level</span>
+                                        <span class="input-group-text input-group-text-fixed-w">Level</span>
                                     </div>
                                     <input type="number" class="form-control text-center" v-model="level">
                                 </div>
                             </div>
                         </div>
 
-
-
-                        <div class="row mb-2">
-                            <div class="col-sm-8">
+                        <div class="row">
+                            <div class="col-sm-8 mb-2">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text" style="width: 150px">HP</span>
+                                        <span class="input-group-text input-group-text-fixed-w">HP</span>
                                     </div>
                                     <input type="number" class="form-control text-center" v-model="hp.current">
                                     <input type="number" class="form-control text-center" v-model="hp.max">
                                 </div>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-4 mb-2">
                                 <div class="input-group">
                                     <select class="custom-select" v-model="damage_mod">
                                         <option selected value="0">Choose...</option>
@@ -73,23 +70,18 @@
                                 </div>
                             </div>
                         </div>
-
-
-
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Skills</h5>
                         <stat-line :stat="ki"></stat-line>
                         <stat-line :stat="stunning_fist"></stat-line>
-
-
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-md-12 col-lg-6">
                 <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Buffs</h5>
@@ -113,10 +105,7 @@
                 </div>
             </div>
         </div>
-
-
     </div>
-
-    <script type="text/javascript" src="/combat-tool.js"></script>
+    <script type="text/javascript" src="js/combat-tool.js"></script>
 </body>
 </html>
