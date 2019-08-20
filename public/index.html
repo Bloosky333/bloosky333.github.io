@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pathfinder Combat Tool</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4" id="combat-tool">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h1 class="text-center mb-3">Pathfinder Combat Tool</h1>
+                <div class="row">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-warning" @click="nextTurn"><i class="fa fa-step-forward"></i> Next turn : <b>{{ current_turn }}</b></button>
+                    </div>
+                    <div class="col-6 text-right">
+                        <button type="button" class="btn btn-secondary"><i class="fa fa-refresh"></i> Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Character sheet</h5>
+                        <div class="row mb-2">
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" style="width: 150px">Level</span>
+                                    </div>
+                                    <input type="number" class="form-control text-center" v-model="level">
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row mb-2">
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" style="width: 150px">HP</span>
+                                    </div>
+                                    <input type="number" class="form-control text-center" v-model="hp.current">
+                                    <input type="number" class="form-control text-center" v-model="hp.max">
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="input-group">
+                                    <select class="custom-select" v-model="damage_mod">
+                                        <option selected value="0">Choose...</option>
+                                        <option v-for="index in 50" :key="index" :value="index">{{ index }}</option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-warning" type="button" @click="addDamage"><i class="fa fa-minus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Skills</h5>
+                        <stat-line :stat="ki"></stat-line>
+                        <stat-line :stat="stunning_fist"></stat-line>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Buffs</h5>
+                        <stat-line :stat="barkskin"></stat-line>
+                        <stat-line :stat="elemental_fury"></stat-line>
+                        <stat-line :stat="shadow_clone"></stat-line>
+                        <stat-line :stat="diamond_soul"></stat-line>
+                        <stat-line :stat="vanishing_trick"></stat-line>
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Forgotten tricks</h5>
+                        <stat-line :stat="ft_shadow_clone"></stat-line>
+                        <stat-line :stat="ft_vanishing_trick"></stat-line>
+                        <stat-line :stat="ft_pressure_point"></stat-line>
+                        <stat-line :stat="ft_bleeding_attack"></stat-line>
+                        <stat-line :stat="ft_weapon_focus"></stat-line>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script type="text/javascript" src="/combat-tool.js"></script>
+</body>
+</html>
