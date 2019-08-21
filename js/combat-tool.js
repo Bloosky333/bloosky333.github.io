@@ -93,7 +93,7 @@ Vue.component('hit-rate-table', {
     },
     template: `
     <div class="table-responsive">
-        <table class="table">
+        <table class="table table-sm text-center">
             <thead class="thead-dark">
                 <tr>
                     <th v-for="header in headers">{{header}}</th>
