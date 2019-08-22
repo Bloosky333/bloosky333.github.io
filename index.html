@@ -37,8 +37,6 @@
         <a class="nav-item nav-link" :class="{active: activePage=='settings'}" @click="activePage='settings'" href="#">Settings</a>
     </nav>
     <div class="container-fluid main-container">
-        <button type="button" class="btn btn-warning fab" @click="nextTurn"><i class="fa fa-step-forward"></i></button>
-
         <div :class="{'d-none': activePage!='buffs'}">
             <div class="row">
                 <div class="col-md-12 col-lg-6">
@@ -48,7 +46,7 @@
                     <stat :stat="stats.stunning_fist"></stat>
                 </div>
                 <div class="col-md-12 col-lg-6">
-                    <h5 class="text-muted mt-3 mt-md-0">Buffs</h5>
+                    <h5 class="text-muted mt-3 mt-lg-0">Buffs</h5>
                     <buff :stat="buffs.barkskin"></buff>
                     <buff :stat="buffs.elemental_fury"></buff>
                     <buff :stat="buffs.shadow_clone"></buff>
@@ -63,6 +61,8 @@
                     <buff :stat="buffs.ft_weapon_focus"></buff>
                 </div>
             </div>
+
+            <button type="button" class="btn btn-warning fab" @click="nextTurn"><i class="fa fa-step-forward"></i></button>
         </div>
 
         <div :class="{'d-none': activePage!='hit'}">
@@ -81,7 +81,7 @@
                     <button class="btn btn-secondary btn-block" type="button" @click="computeMax()"><i class="fa fa-calculator"></i> Compute Max</button>
                 </div>
                 <div class="col-md-12 col-lg-6">
-                    <h5 class="text-muted mt-3 mt-md-0">Buffs</h5>
+                    <h5 class="text-muted mt-3 mt-lg-0">Buffs</h5>
                     <stat-setting :stat="buffs.barkskin"></stat-setting>
                     <stat-setting :stat="buffs.elemental_fury"></stat-setting>
                     <stat-setting :stat="buffs.shadow_clone"></stat-setting>
