@@ -249,20 +249,29 @@ var combatTool = new Vue({
             }
         },
         load: function () {
-            if (localStorage && localStorage.getItem(this.dbName)){
-                let vm = this;
-                let data = JSON.parse(localStorage.getItem(this.dbName));
+            if (localStorage){
+                this._load('stats');
+                this._load('buffs');
+            }
+        },
+        _load: function(collectiondName) {
+            let data = localStorage.getItem(this.dbName + '_' + collectiondName);
+            if (data) {
+                data = JSON.parse(data);
                 for(let key in data) {
                     if(data[key].current !== undefined){
-                        vm[key].current = data[key].current;
-                        vm[key].max = data[key].max;
+                        this[collectiondName][key].current = data[key].current;
+                        this[collectiondName][key].max = data[key].max;
                     }
                 }
             }
         },
         save: function () {
-            let data = JSON.stringify(this._data);
-            localStorage.setItem(this.dbName, data);
+            let stats = JSON.stringify(this._data.stats);
+            let buffs = JSON.stringify(this._data.buffs);
+            localStorage.setItem(this.dbName + '_stats', stats);
+            localStorage.setItem(this.dbName + '_buffs', buffs);
+
         },
     }
 });
