@@ -69,10 +69,10 @@ Vue.component('stat-setting', {
     <div class="card mb-1">
         <div class="card-body py-2">
             <div class="row">
-                <div class="col-4 col-md-3 pt-2">
+                <div class="col-5 pt-2">
                     <h6 class="text-capitalize">{{ stat.title }}</h6>
                 </div>
-                <div class="col-8 col-md-3 col-flex">
+                <div class="col-7 col-flex">
                     <input type="text" class="form-control text-center" v-model="stat.max">
                     <button class="btn btn-success" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-warning" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
