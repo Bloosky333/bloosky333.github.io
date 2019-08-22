@@ -17,135 +17,90 @@
 
 </head>
 <body>
-    <div class="container mt-4" id="combat-tool">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h1 class="text-center mb-3">Pathfinder Combat Tool</h1>
-                <div class="row">
-                    <div class="col-6">
-                        <button type="button" class="btn btn-warning" @click="nextTurn"><i class="fa fa-step-forward"></i> Next turn : <b>{{ current_turn }}</b></button>
-                    </div>
-                    <div class="col-6 text-right">
-                        <button type="button" class="btn btn-secondary d-none d-sm-none d-md-inline-block" @click="reset()"><i class="fa fa-refresh"></i> Reset</button>
-                        <button type="button" class="btn btn-secondary d-none d-sm-none d-md-inline-block" @click="load()"><i class="fa fa-folder-open"></i> Load</button>
-                        <button type="button" class="btn btn-secondary d-none d-sm-none d-md-inline-block" @click="save()"><i class="fa fa-save"></i> Save</button>
-                        <div class="dropdown d-sm-inline-block d-md-none">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                More
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#" @click="reset()"><i class="fa fa-refresh"></i> Reset</a>
-                                <a class="dropdown-item" href="#" @click="load()"><i class="fa fa-folder-open"></i> Load</a>
-                                <a class="dropdown-item" href="#" @click="save()"><i class="fa fa-save"></i> Save</a>
-                            </div>
-                        </div>
+<div id="combat-tool">
+    <nav class="navbar fixed-top navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Pathfinder Combat Tool</a>
 
-                    </div>
+        <div class="dropdown menuDropdown">
+            <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                <i class="fa fa-bars"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="#" @click="load()"><i class="fa fa-folder-open"></i> Load</a>
+                <a class="dropdown-item" href="#" @click="save()"><i class="fa fa-save"></i> Save</a>
+            </div>
+        </div>
+    </nav>
+    <nav class="nav nav-tabs nav-fill pageSwitcher bg-dark fixed">
+        <a class="nav-item nav-link" :class="{active: activePage=='buffs'}" @click="activePage='buffs'" href="#">Buffs</a>
+        <a class="nav-item nav-link" :class="{active: activePage=='hit'}" @click="activePage='hit'" href="#">Hit rate</a>
+        <a class="nav-item nav-link" :class="{active: activePage=='settings'}" @click="activePage='settings'" href="#">Settings</a>
+    </nav>
+    <div class="container-fluid main-container">
+        <button type="button" class="btn btn-warning fab" @click="nextTurn"><i class="fa fa-step-forward"></i></button>
+
+        <div :class="{'d-none': activePage!='buffs'}">
+            <div class="row">
+                <div class="col-md-12 col-lg-6">
+                    <h5 class="text-muted">Character sheet</h5>
+                    <stat :stat="stats.hp"></stat>
+                    <stat :stat="stats.ki"></stat>
+                    <stat :stat="stats.stunning_fist"></stat>
+                </div>
+                <div class="col-md-12 col-lg-6">
+                    <h5 class="text-muted mt-3 mt-md-0">Buffs</h5>
+                    <buff :stat="buffs.barkskin"></buff>
+                    <buff :stat="buffs.elemental_fury"></buff>
+                    <buff :stat="buffs.shadow_clone"></buff>
+                    <buff :stat="buffs.vanishing_trick"></buff>
+                    <buff :stat="buffs.diamond_soul"></buff>
+
+                    <h5 class="text-muted mt-3">Forgotten tricks</h5>
+                    <buff :stat="buffs.ft_shadow_clone"></buff>
+                    <buff :stat="buffs.ft_vanishing_trick"></buff>
+                    <buff :stat="buffs.ft_pressure_point"></buff>
+                    <buff :stat="buffs.ft_bleeding_attack"></buff>
+                    <buff :stat="buffs.ft_weapon_focus"></buff>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-12 col-lg-6">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Character sheet</h5>
-                        <div class="row mb-2">
-                            <div class="col-sm-7">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text input-group-text-fixed-w">Level</span>
-                                    </div>
-                                    <input type="text" class="form-control text-center" v-model="level">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-sm-7 mb-2">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text input-group-text-fixed-w">HP</span>
-                                    </div>
-                                    <input type="text" class="form-control text-center" v-model="hp.current">
-                                    <input type="text" class="form-control text-center" v-model="hp.max">
-                                </div>
-                            </div>
-                            <div class="col-sm-5 mb-2">
-                                <div class="input-group">
-                                    <select class="custom-select" v-model="damage_mod">
-                                        <option selected value="0">Choose...</option>
-                                        <option v-for="index in 50" :key="index" :value="index">{{ index }}</option>
-                                    </select>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-warning" type="button" @click="addDamage"><i class="fa fa-minus"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Skills</h5>
-                        <stat-line :stat="ki"></stat-line>
-                        <stat-line :stat="stunning_fist"></stat-line>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-12 col-lg-6">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Buffs</h5>
-                        <stat-line :stat="barkskin"></stat-line>
-                        <stat-line :stat="elemental_fury"></stat-line>
-                        <stat-line :stat="shadow_clone"></stat-line>
-                        <stat-line :stat="vanishing_trick"></stat-line>
-                        <stat-line :stat="diamond_soul"></stat-line>
-                    </div>
-                </div>
-
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Forgotten tricks</h5>
-                        <stat-line :stat="ft_shadow_clone"></stat-line>
-                        <stat-line :stat="ft_vanishing_trick"></stat-line>
-                        <stat-line :stat="ft_pressure_point"></stat-line>
-                        <stat-line :stat="ft_bleeding_attack"></stat-line>
-                        <stat-line :stat="ft_weapon_focus"></stat-line>
-                    </div>
-                </div>
-            </div>
+        <div :class="{'d-none': activePage!='hit'}">
+            <hit-rate-table :bab="stats.bab.max" :crit="stats.crit.max"></hit-rate-table>
         </div>
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title">Hit probability</h5>
-                <div class="row">
-                    <div class="col-sm-4 mb-2">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text input-group-text-fixed-w">BAB</span>
-                            </div>
-                            <input type="number" class="form-control text-center" v-model="bab">
-                        </div>
-                    </div>
-                    <div class="col-sm-4 mb-2">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text input-group-text-fixed-w">Crit dice</span>
-                            </div>
-                            <input type="number" class="form-control text-center" v-model="crit">
-                        </div>
-                    </div>
+        <div :class="{'d-none': activePage!='settings'}">
+            <div class="row">
+                <div class="col-md-12 col-lg-6">
+                    <h5 class="text-muted">Character sheet</h5>
+                    <stat-setting :stat="stats.level"></stat-setting>
+                    <stat-setting :stat="stats.hp"></stat-setting>
+                    <stat-setting :stat="stats.bab"></stat-setting>
+                    <stat-setting :stat="stats.crit"></stat-setting>
+
+                    <button class="btn btn-secondary btn-block" type="button" @click="computeMax()"><i class="fa fa-calculator"></i> Compute Max</button>
+                </div>
+                <div class="col-md-12 col-lg-6">
+                    <h5 class="text-muted mt-3 mt-md-0">Buffs</h5>
+                    <stat-setting :stat="buffs.barkskin"></stat-setting>
+                    <stat-setting :stat="buffs.elemental_fury"></stat-setting>
+                    <stat-setting :stat="buffs.shadow_clone"></stat-setting>
+                    <stat-setting :stat="buffs.vanishing_trick"></stat-setting>
+                    <stat-setting :stat="buffs.diamond_soul"></stat-setting>
+
+                    <h5 class="text-muted mt-3">Forgotten tricks</h5>
+                    <stat-setting :stat="buffs.ft_shadow_clone"></stat-setting>
+                    <stat-setting :stat="buffs.ft_vanishing_trick"></stat-setting>
+                    <stat-setting :stat="buffs.ft_pressure_point"></stat-setting>
+                    <stat-setting :stat="buffs.ft_bleeding_attack"></stat-setting>
+                    <stat-setting :stat="buffs.ft_weapon_focus"></stat-setting>
                 </div>
 
-                <hit-rate-table :bab="bab" :crit="crit"></hit-rate-table>
             </div>
-        </div>
 
+        </div>
     </div>
-    <script type="text/javascript" src="js/combat-tool.js"></script>
+</div>
+<script type="text/javascript" src="js/combat-tool.js"></script>
 </body>
 </html>

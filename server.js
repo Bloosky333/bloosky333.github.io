@@ -3,8 +3,6 @@ const path = require('path');
 
 const app = express();
 
-//app.use('/', express.static('/js'));
-//app.use('/', express.static('/css'));
 app.use(express.static(__dirname + '/'));
 
 app.get('/', function (req, res) {

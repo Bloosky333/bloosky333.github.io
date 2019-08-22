@@ -1,14 +1,16 @@
-Vue.component('stat-line', {
+Vue.component('stat', {
     props: ['stat'],
     methods: {
         decreaseStat: function () {
             if(this.stat.current > 0) {
-                this.stat.current--;
+                this.stat.current -= this.stat.mod;
+                this.stat.mod = 1;
             }
         },
         increaseStat: function () {
             if(this.stat.current < this.stat.max) {
-                this.stat.current++;
+                this.stat.current += this.stat.mod;
+                this.stat.mod = 1;
             }
         },
         resetStat: function () {
@@ -20,58 +22,135 @@ Vue.component('stat-line', {
 
     },
     template: `
-    <div class="row">
-        <div class="col-sm-7 mb-2">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text text-capitalize input-group-text-fixed-w">{{ stat.title }}</span>
+    <div class="card mb-1">
+        <div class="card-body py-2">
+            <div class="row">
+                <div class="col-6 col-md-3 pt-2 mb-2 mb-md-0">
+                    <h6 class="text-capitalize">{{ stat.title }}</h6>
                 </div>
-                <input type="text" class="form-control text-center" v-model="stat.current" :class="{'text-danger': !stat.current}">
-                <input type="text" class="form-control text-center" v-model="stat.max">
-            </div>
-        </div>
-        <div class="col-sm-5 mb-2 text-right">
-            <div class="btn-group"
-                <button class="btn btn-success" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
-                <button class="btn btn-warning" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
-                <button class="btn btn-secondary" type="button" @click="resetStat()"><i class="fa fa-refresh"></i></button>
-                <button class="btn btn-secondary" type="button" @click="emptyStat()"><i class="fa fa-trash"></i></button>
+                <div class="col-6 col-md-3 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <input type="text" class="form-control text-center" v-model="stat.current" :class="{'text-danger': !stat.current}">
+                        <div class="input-group-append">
+                            <span class="input-group-text input-group-text-fixed-w-sm">/ {{ stat.max }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 text-right col-flex">
+                    <select class="custom-select w-auto" v-model="stat.mod">
+                        <option v-for="index in 50" :key="index" :value="index">{{ index }}</option>
+                    </select>
+                    <button class="btn btn-success" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
+                    <button class="btn btn-warning" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
+                    <button class="btn btn-secondary" type="button" @click="resetStat()"><i class="fa fa-refresh"></i></button>
+                </div>
             </div>
         </div>
     </div>
   `
 });
+
+Vue.component('stat-setting', {
+    props: ['stat'],
+    methods: {
+        decreaseStat: function () {
+            if(this.stat.max > 0) {
+                this.stat.max --;
+            }
+        },
+        increaseStat: function () {
+            this.stat.max ++;
+        },
+        computeStat: function () {
+            
+        }
+    },
+    template: `
+    <div class="card mb-1">
+        <div class="card-body py-2">
+            <div class="row">
+                <div class="col-4 col-md-3 pt-2">
+                    <h6 class="text-capitalize">{{ stat.title }}</h6>
+                </div>
+                <div class="col-8 col-md-3 col-flex">
+                    <input type="text" class="form-control text-center" v-model="stat.max">
+                    <button class="btn btn-success" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
+                    <button class="btn btn-warning" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+  `
+});
+
+Vue.component('buff', {
+    props: ['stat'],
+    methods: {
+        decreaseStat: function () {
+            if(this.stat.current > 0) {
+                this.stat.current --;
+            }
+        },
+        resetStat: function () {
+            this.stat.current = this.stat.max;
+        },
+        emptyStat: function () {
+            this.stat.current = 0;
+        },
+
+    },
+    template: `
+    <div class="card mb-1">
+        <div class="card-body py-2">
+            <div class="row">
+                <div class="col-5 pt-2">
+                    <h6 class="text-capitalize">{{ stat.title }}</h6>
+                </div>
+                <div class="col-2 flex-col">
+                    <h3 class="m-0"><span class="badge" :class="{'badge-success': stat.current > 1, 'badge-warning': stat.current==1, 'badge-danger': !stat.current}">{{ stat.current }}</span></h3>
+                </div>
+                <div class="col-5 text-right">
+                    <button class="btn btn-secondary" type="button" @click="resetStat()"><i class="fa fa-refresh"></i></button>
+                    <button class="btn btn-secondary" type="button" @click="emptyStat()"><i class="fa fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+  `
+});
+
 Vue.component('hit-rate-table', {
     props: ['bab', 'crit'],
     data: function() {
         let data = {
             minAC: 20,
             maxAC: 40,
+            minOffset: -5,
+            maxOffset: 6,
+            headers: [],
         };
 
-        data.headers = ["BAB/AC"];
-        for (let ac = data.minAC; ac <= data.maxAC; ac++) {
-            data.headers.push(ac);
+        let header;
+        let bab = parseInt(this.bab, 10);
+        for (let offset = data.minOffset; offset <= data.maxOffset; offset++) {
+            header = offset < 0 ? offset : "+" + offset;
+            data.headers.push(`${bab+offset}<br>${header}`);
         }
 
         return data;
     },
     computed: {
         table: function() {
-
-            let data = [], row, header;
-            let minOffset = -5;
-            let maxOffset = 6;
+            let data = [], row;
             let bab = parseInt(this.bab, 10);
-            for (let offset = minOffset; offset <= maxOffset; offset++) {
-                row = [];
-                header = offset < 0 ? offset : "+" + offset;
 
-                for (let ac = this.minAC; ac <= this.maxAC; ac++) {
+            for (let ac = this.minAC; ac <= this.maxAC; ac++) {
+                row = [];
+                for (let offset = this.minOffset; offset <= this.maxOffset; offset++) {
                     row.push(this._getHitRate(bab + offset, ac, this.crit));
                 }
                 data.push({
-                    header: (bab + offset) + " (" + header + ")",
+                    header: ac,
                     row: row
                 });
             }
@@ -96,7 +175,8 @@ Vue.component('hit-rate-table', {
         <table class="table table-sm text-center">
             <thead class="thead-dark">
                 <tr>
-                    <th v-for="header in headers">{{header}}</th>
+                    <th class="table-sticky">AC/BAB</th>
+                    <th v-for="header in headers" v-html="header"></th>
                 </tr>
             </thead>
             <tbody>
@@ -114,67 +194,59 @@ var combatTool = new Vue({
     el: '#combat-tool',
     data: function() {
         let data = {
+            activePage: "buffs",
             dbName: "pathfinder_combat_tool",
-            buffs: 'barkskin'.split(','),
+            stats: {},
+            buffs: {},
+        };
+        let stats = {
             level: 10,
-            damage_mod: 0,
-            current_turn: 0,
+            hp: 100,
+            ki: 17,
+            stunning_fist: 10,
             bab: 17,
             crit: 20,
         };
-        let stats = {
-            hp: 100,
-            ki: 17,
-            stunning_fist: data.level,
-        };
         for(let key in stats) {
-            data[key] = {
+            data.stats[key] = {
                 name: key,
                 title: key.replace(/_/g, ' '),
                 current: stats[key],
                 max: stats[key],
-                is_buff: false,
+                mod: 1,
             };
         }
 
         let buffs = {
-            barkskin: data.level * 80,
+            barkskin: stats.level * 80,
             elemental_fury: 4,
-            shadow_clone: data.level * 10,
-            vanishing_trick: data.level,
-            diamond_soul: data.level,
-            ft_shadow_clone: data.level,
-            ft_vanishing_trick: data.level,
-            ft_pressure_point: data.level,
-            ft_bleeding_attack: data.level,
-            ft_weapon_focus: data.level,
+            shadow_clone: stats.level * 10,
+            vanishing_trick: stats.level,
+            diamond_soul: stats.level,
+            ft_shadow_clone: stats.level,
+            ft_vanishing_trick: stats.level,
+            ft_pressure_point: stats.level,
+            ft_bleeding_attack: stats.level,
+            ft_weapon_focus: stats.level,
         };
         for(let key in buffs) {
-            data[key] = {
+            data.buffs[key] = {
                 name: key,
-                title: key.replace(/_/g, ' '),
+                title: key.replace('ft_', '').replace(/_/g, ' '),
                 current: 0,
                 max: buffs[key],
-                is_buff: true,
+                mod: 1,
             };
         }
-
         return data;
     },
     methods: {
         nextTurn: function(){
-            this.current_turn++;
-            this.$children.forEach(function(child){
-                if(child.stat.is_buff) {
-                    child.decreaseStat();
+            for(key in this.buffs){
+                if(this.buffs[key].current > 0){
+                    this.buffs[key].current--;
                 }
-            });
-        },
-        addDamage: function() {
-            this.hp.current -= this.damage_mod;
-        },
-        reset: function () {
-
+            }
         },
         load: function () {
             if (localStorage && localStorage.getItem(this.dbName)){
@@ -186,18 +258,11 @@ var combatTool = new Vue({
                         vm[key].max = data[key].max;
                     }
                 }
-                let staticKeys = "level,current_turn".split(',');
-                staticKeys.forEach(function(key) {
-                    vm[key] = data[key];
-                });
-                console.log(data)
             }
         },
-
         save: function () {
             let data = JSON.stringify(this._data);
             localStorage.setItem(this.dbName, data);
-            console.log('STORED', data);
         },
     }
 });

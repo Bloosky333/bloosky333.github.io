@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <title>Pathfinder Combat Tool</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="combat-tool">
+    <v-app>
+        <v-app-bar dark fixed>
+            <v-toolbar-title>Pathfinder Combat Tool</v-toolbar-title>
+
+            <v-spacer></v-spacer>
+
+            <v-btn icon>
+                <v-icon>trending_up</v-icon>
+            </v-btn>
+
+            <v-btn icon>
+                <v-icon>settings</v-icon>
+            </v-btn>
+
+            <v-menu left bottom>
+                <template v-slot:activator="{ on }">
+                    <v-btn icon v-on="on">
+                        <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                </template>
+
+                <v-list>
+                    <v-list-item @click="reset()">
+                        <v-list-item-icon><v-icon>refresh</v-icon></v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Reset</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+
+                    <v-list-item @click="load()">
+                        <v-list-item-icon><v-icon>folder</v-icon></v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Load</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+                    <v-list-item @click="save()">
+                        <v-list-item-icon><v-icon>save</v-icon></v-list-item-icon>
+                        <v-list-item-content>
+                            <v-list-item-title>Save</v-list-item-title>
+                        </v-list-item-content>
+                    </v-list-item>
+
+                </v-list>
+            </v-menu>
+
+        </v-app-bar>
+
+        <!-- Sizes your content based upon application components -->
+        <v-content>
+
+            <!-- Provides the application the proper gutter -->
+            <v-container fluid class="fill-height">
+                <v-card>
+                    <v-card-title>Character sheet</v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text>
+
+                        <v-row width="100">
+                            <v-col sm="3">
+                                <v-text-field label="HP" v-model="hp.current" ></v-text-field> /
+                            </v-col>
+                            <v-col sm="3">
+                                <v-text-field label="Max" v-model="hp.max" disabled ></v-text-field>
+                            </v-col>
+                            <v-col sm="2">
+                                <v-btn large  color="warning">-</v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+
+
+
+
+
+
+                <v-btn fixed dark fab bottom right color="orange" @click="nextTurn">
+                    <v-icon>play_arrow</v-icon>
+                    <br>
+                </v-btn>
+            </v-container>
+        </v-content>
+    </v-app>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+<script type="text/javascript" src="js/combat-tool.js"></script>
+</body>
+</html>
