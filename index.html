@@ -26,13 +26,15 @@
                 <i class="fa fa-bars"></i>
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="#" @click="load()"><i class="fa fa-folder-open"></i> Load</a>
-                <a class="dropdown-item" href="#" @click="save()"><i class="fa fa-save"></i> Save</a>
+                <!--<a class="dropdown-item" href="#" @click="load()"><i class="fa fa-folder-open"></i> Load</a>-->
+                <!--<a class="dropdown-item" href="#" @click="save()"><i class="fa fa-save"></i> Save</a>-->
+                <a class="dropdown-item" href="#" @click="removeSave()"><i class="fa fa-trash"></i> Delete all Saves</a>
             </div>
         </div>
     </nav>
     <nav class="nav nav-tabs nav-fill pageSwitcher bg-dark fixed">
         <a class="nav-item nav-link" :class="{active: activePage=='buffs'}" @click="activePage='buffs'" href="#">Buffs</a>
+        <a class="nav-item nav-link" :class="{active: activePage=='dps'}" @click="activePage='dps'" href="#">DPS</a>
         <a class="nav-item nav-link" :class="{active: activePage=='hit'}" @click="activePage='hit'" href="#">Hit rate</a>
         <a class="nav-item nav-link" :class="{active: activePage=='settings'}" @click="activePage='settings'" href="#">Settings</a>
     </nav>
@@ -66,7 +68,95 @@
         </div>
 
         <div :class="{'d-none': activePage!='hit'}">
-            <hit-rate-table :bab="stats.bab.max" :crit="stats.crit.max"></hit-rate-table>
+            <hit-rate-table :bab="attacks[0].bab+stats.bonus_bab.max" :crit="stats.crit.max"></hit-rate-table>
+        </div>
+
+        <div :class="{'d-none': activePage!='dps'}">
+            <stat-setting :stat="stats.target_ac"></stat-setting>
+
+            <div class="row">
+                <div class="col-6">
+                    <toggle :toggle="toggles.stunned"></toggle>
+                    <toggle :toggle="toggles.flanking"></toggle>
+                    <toggle :toggle="toggles.large_size"></toggle>
+                </div>
+                <div class="col-6">
+                    <toggle :toggle="toggles.power_attack"></toggle>
+                    <toggle :toggle="toggles.ki_extra_attack"></toggle>
+                    <toggle :toggle="toggles.elbow_smash"></toggle>
+                </div>
+            </div>
+
+            <div class="card mb-1">
+                <div class="card-body">
+                    <p><b>Attacks</b> &nbsp;&nbsp;&nbsp; <b class="pull-right">{{ base_damage_string }}</b></p>
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-sm text-center">
+                            <tbody>
+                            <tr>
+                                <td v-for="atk in attacks">+{{ atk.bab }}</td>
+                            </tr>
+                            <tr>
+                                <td v-for="atk in attacks" :class="{'text-danger': atk.hit<50, 'text-warning': atk.hit>=50 && atk.hit<80, 'text-success': atk.hit>=80}">{{ Math.round(atk.hit) }}%</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div v-show="damage.bonus_target_ac">
+                        <b>Target AC modifier</b>
+                        <b class="pull-right">{{ damage.bonus_target_ac }}</b>
+                    </div>
+                    <div v-show="damage.ignore_dex_ac">
+                        <b>Ignore Target DEX bonus AC</b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-1">
+                <div class="card-body py-2">
+                    <div class="table-responsive">
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                            <tr>
+                                <td>Base</td>
+                                <td class="text-muted">{{ base_damage_string }}</td>
+                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.base"></td>
+                            </tr>
+                            <tr v-show="buffs.elemental_fury.current > 0">
+                                <td>Elemental fury</td>
+                                <td class="text-muted">1d6</td>
+                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.elemental_fury"></td>
+                            </tr>
+                            <tr v-show="damage.ignore_dex_ac || this.toggles.flanking.active">
+                                <td>Sneak attack</td>
+                                <td class="text-muted">{{ stats.sneak_attack_d6.max }}d6</td>
+                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.sneak_attack"></td>
+                            </tr>
+                            <tr v-show="toggles.elbow_smash.active">
+                                <td>Elbow Smash</td>
+                                <td class="text-muted">{{ base_damage_string }}&nbsp;&nbsp;&nbsp; @+{{ attacks[0].bab - 5}}</td>
+                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.elbow_smash"></td>
+                            </tr>
+                            <tr v-show="toggles.jabbing_style.active">
+                                <td>Jabbing</td>
+                                <td class="text-muted">
+                                    <span v-show="!toggles.jabbing_master.active">1d6</span>
+                                    <span v-show="toggles.jabbing_master.active">2d6 / 4d6</span>
+                                </td>
+                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.jabbing"></td>
+                            </tr>
+                            <tr>
+                                <th>Total</th>
+                                <th></th>
+                                <th class="text-center  ">{{ self_input_total }}</th>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-warning fab" @click="resetDPS"><i class="fa fa-refresh"></i></button>
         </div>
 
         <div :class="{'d-none': activePage!='settings'}">
@@ -75,10 +165,24 @@
                     <h5 class="text-muted">Character sheet</h5>
                     <stat-setting :stat="stats.level"></stat-setting>
                     <stat-setting :stat="stats.hp"></stat-setting>
-                    <stat-setting :stat="stats.bab"></stat-setting>
+                    <stat-setting :stat="stats.bonus_bab"></stat-setting>
                     <stat-setting :stat="stats.crit"></stat-setting>
+                    <stat-setting :stat="stats.bonus_damage"></stat-setting>
+                    <stat-setting :stat="stats.sneak_attack_d6"></stat-setting>
 
-                    <button class="btn btn-secondary btn-block" type="button" @click="computeMax()"><i class="fa fa-calculator"></i> Compute Max</button>
+                    <div class="row">
+                        <div class="col-6">
+                            <toggle :toggle="toggles.jabbing_style"></toggle>
+                            <toggle :toggle="toggles.jabbing_master"></toggle>
+                        </div>
+                        <div class="col-6">
+                            <toggle :toggle="toggles.medusa_wrath"></toggle>
+                            <toggle :toggle="toggles.dispatchment"></toggle>
+                            <toggle :toggle="toggles.monk_robe"></toggle>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary btn-block" type="button" @click="computeMax()"><i class="fa fa-calculator"></i> Compute</button>
                 </div>
                 <div class="col-md-12 col-lg-6">
                     <h5 class="text-muted mt-3 mt-lg-0">Buffs</h5>

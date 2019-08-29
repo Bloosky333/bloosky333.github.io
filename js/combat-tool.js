@@ -1,22 +1,22 @@
 Vue.component('stat', {
     props: ['stat'],
     methods: {
-        decreaseStat: function () {
+        decreaseStat () {
             if(this.stat.current > 0) {
                 this.stat.current -= this.stat.mod;
                 this.stat.mod = 1;
             }
         },
-        increaseStat: function () {
+        increaseStat () {
             if(this.stat.current < this.stat.max) {
                 this.stat.current += this.stat.mod;
                 this.stat.mod = 1;
             }
         },
-        resetStat: function () {
+        resetStat () {
             this.stat.current = this.stat.max;
         },
-        emptyStat: function () {
+        emptyStat () {
             this.stat.current = 0;
         },
 
@@ -53,15 +53,15 @@ Vue.component('stat', {
 Vue.component('stat-setting', {
     props: ['stat'],
     methods: {
-        decreaseStat: function () {
+        decreaseStat () {
             if(this.stat.max > 0) {
                 this.stat.max --;
             }
         },
-        increaseStat: function () {
+        increaseStat () {
             this.stat.max ++;
         },
-        computeStat: function () {
+        computeStat () {
             
         }
     },
@@ -86,15 +86,15 @@ Vue.component('stat-setting', {
 Vue.component('buff', {
     props: ['stat'],
     methods: {
-        decreaseStat: function () {
+        decreaseStat () {
             if(this.stat.current > 0) {
                 this.stat.current --;
             }
         },
-        resetStat: function () {
+        resetStat () {
             this.stat.current = this.stat.max;
         },
-        emptyStat: function () {
+        emptyStat () {
             this.stat.current = 0;
         },
 
@@ -119,9 +119,26 @@ Vue.component('buff', {
   `
 });
 
+Vue.component('toggle', {
+    props: ['toggle'],
+    methods: {
+        toggleActive () {
+            this.toggle.active = !this.toggle.active;
+        },
+    },
+    template: `
+    <div class="card mb-1">
+        <div class="card-body py-2 switch-box">
+            <h6 class="text-capitalize mt-1 mb-0">{{ toggle.title }}</h6>
+            <div class="switch" @click="toggleActive" :class="{checked: toggle.active}"></div>
+        </div>
+    </div>
+  `
+});
+
 Vue.component('hit-rate-table', {
     props: ['bab', 'crit'],
-    data: function() {
+    data () {
         let data = {
             minAC: 20,
             maxAC: 40,
@@ -140,7 +157,7 @@ Vue.component('hit-rate-table', {
         return data;
     },
     computed: {
-        table: function() {
+        table () {
             let data = [], row;
             let bab = parseInt(this.bab, 10);
 
@@ -158,7 +175,7 @@ Vue.component('hit-rate-table', {
         },
     },
     methods: {
-        _getHitRate: function (bab, ac, critDice) {
+        _getHitRate (bab, ac, critDice) {
             let critMiss = 1/20;
             let crit = (21 - critDice) / 20;
             let hit = (21 + bab - ac) / 20;
@@ -192,20 +209,25 @@ Vue.component('hit-rate-table', {
 
 var combatTool = new Vue({
     el: '#combat-tool',
-    data: function() {
+    data() {
         let data = {
             activePage: "buffs",
             dbName: "pathfinder_combat_tool",
             stats: {},
             buffs: {},
+            toggles: {},
+            self_input: {}
         };
         let stats = {
             level: 10,
             hp: 100,
             ki: 17,
             stunning_fist: 10,
-            bab: 17,
+            bonus_bab: 8,
+            bonus_damage: 8,
             crit: 20,
+            target_ac: 20,
+            sneak_attack_d6: 2,
         };
         for(let key in stats) {
             data.stats[key] = {
@@ -238,40 +260,211 @@ var combatTool = new Vue({
                 mod: 1,
             };
         }
+
+        let toggles = "stunned,dispatchment,elemental_fury,flanking,power_attack,jabbing_style,jabbing_master,large_size,monk_robe,ki_extra_attack,elbow_smash,medusa_wrath".split(',');
+        let key;
+        for(let i in toggles){
+            key = toggles[i];
+            data.toggles[key] = {
+                name: key,
+                title: key.replace(/_/g, ' '),
+                active: false,
+            }
+        }
         return data;
     },
     methods: {
-        nextTurn: function(){
+        nextTurn (){
             for(key in this.buffs){
                 if(this.buffs[key].current > 0){
                     this.buffs[key].current--;
                 }
             }
         },
-        load: function () {
+        load () {
             if (localStorage){
                 this._load('stats');
                 this._load('buffs');
+                this._load('toggles');
             }
         },
-        _load: function(collectiondName) {
-            let data = localStorage.getItem(this.dbName + '_' + collectiondName);
+        _load (collectionName) {
+            let fields = "current,max,active".split(',');
+            let data = localStorage.getItem(this.dbName + '_' + collectionName);
+            let field;
             if (data) {
                 data = JSON.parse(data);
                 for(let key in data) {
-                    if(data[key].current !== undefined){
-                        this[collectiondName][key].current = data[key].current;
-                        this[collectiondName][key].max = data[key].max;
+                    for (let i in fields) {
+                        field = fields[i];
+                        if(data[key][field] !== undefined){
+                            this[collectionName][key][field] = data[key][field];
+                        }
                     }
+
                 }
             }
         },
-        save: function () {
-            let stats = JSON.stringify(this._data.stats);
-            let buffs = JSON.stringify(this._data.buffs);
-            localStorage.setItem(this.dbName + '_stats', stats);
-            localStorage.setItem(this.dbName + '_buffs', buffs);
-
+        save () {
+            this._save('stats');
+            this._save('buffs');
+            this._save('toggles');
         },
-    }
+        _save (collectionName){
+            let data = JSON.stringify(this._data[collectionName]);
+            localStorage.setItem(this.dbName + '_' + collectionName, data);
+        },
+        removeSave () {
+            let response = confirm('No going back !');
+            if (response) {
+                localStorage.removeItem(this.dbName + '_buffs');
+                localStorage.removeItem(this.dbName + '_stats');
+                localStorage.removeItem(this.dbName + '_toggles');
+                location.reload();
+            }
+        },
+        resetDPS () {
+            this.self_input= {};
+        },
+        _getHitRate (bab, ac, critDice) {
+            let critMiss = 1/20;
+            let crit = (21 - critDice) / 20;
+            let hit = (21 + bab - ac) / 20;
+            if(hit>=1){
+                hit = 1 - critMiss;
+            } else if(hit<=crit) {
+                hit = crit;
+            }
+            return hit * 100;
+        }
+    },
+    computed: {
+        self_input_total (){
+            let total = 0;
+            for (let key in this.self_input){
+                total += parseInt(this.self_input[key], 10);
+            }
+            return total;
+        },
+        damage (){
+            let damage = {
+                bonus_bab_tmp: 0,
+                bonus_damage_tmp: 0,
+                bonus_target_ac: 0,
+                ignore_dex_ac: false,
+            };
+
+            if (this.toggles.stunned.active) {
+                damage.bonus_target_ac -= 2;
+                damage.ignore_dex_ac = true;
+            }
+            if (this.buffs.vanishing_trick.current > 0) {
+                damage.ignore_dex_ac = true;
+                damage.bonus_bab_tmp += 2;
+            }
+            if (this.toggles.flanking.active) {
+                damage.bonus_bab_tmp += 2;
+            }
+
+            //Power attack
+            if (this.toggles.power_attack.active) {
+                if (this.stats.level.max >=17){
+                    damage.bonus_bab_tmp -= 5;
+                    damage.bonus_damage_tmp += 10;
+                } else if (this.stats.level.max >=13){
+                    damage.bonus_bab_tmp -= 4;
+                    damage.bonus_damage_tmp += 8;
+                } else if (this.stats.level.max >=9){
+                    damage.bonus_bab_tmp -= 3;
+                    damage.bonus_damage_tmp += 6;
+                } else if (this.stats.level.max >=5){
+                    damage.bonus_bab_tmp -= 2;
+                    damage.bonus_damage_tmp += 4;
+                } else {
+                    damage.bonus_bab_tmp -= 1;
+                    damage.bonus_damage_tmp += 2;
+                }
+            }
+
+            // Sneak attack
+            if (damage.ignore_dex_ac || this.toggles.flanking.active) {
+
+                if (this.toggles.dispatchment.active) {
+                    damage.bonus_bab_tmp += 2;
+                }
+            }
+
+            let baseDamage = {
+                medium: "1d6,1d6,1d6,1d8,1d8,1d8,1d8,1d10,1d10,1d10,1d10,2d6,2d6,2d6,2d6,2d8,2d8,2d8,2d8,2d10,2d10,2d10,2d10,3d8,3d8".split(','),
+                large: "1d8,1d8,1d8,2d6,2d6,2d6,2d6,2d8,2d8,2d8,2d8,3d6,3d6,3d6,3d6,3d8,3d8,3d8,3d8,4d8,4d8,4d8,4d8,4d10,4d10".split(','),
+            };
+            baseDamage.use = this.toggles.large_size.active ? baseDamage.large : baseDamage.medium;
+
+            let lvlToUse = this.toggles.monk_robe.active ? this.stats.level.max + 5 : this.stats.level.max;
+            damage.base_damage = baseDamage.use[lvlToUse-1];
+
+            return damage;
+        },
+        attacks (){
+            let attacks = [2,2];
+            for (let lvl=4; lvl<=this.stats.level.max; lvl++){
+                for (let i in attacks){
+                    attacks[i]++;
+                    if (attacks[i] == 6 && i == attacks.length-1) {
+                        attacks.push(1);
+                    }
+                }
+            }
+
+            if (this.stats.level.max >= 14) {
+                attacks.unshift(attacks[0]);
+            }
+            if (this.toggles.ki_extra_attack.active) {
+                attacks.unshift(attacks[0]);
+            }
+            if (this.toggles.medusa_wrath.active && this.toggles.stunned.active) {
+                attacks.unshift(attacks[0]);
+                attacks.unshift(attacks[0]);
+            }
+
+            let attacksData = [];
+            for (let i in attacks){
+                attacks[i] += this.stats.bonus_bab.max + this.damage.bonus_bab_tmp;
+                attacksData.push({
+                    bab: attacks[i],
+                    hit: this._getHitRate(attacks[i], this.stats.target_ac.max + this.damage.bonus_target_ac, this.stats.crit.max),
+                })
+            }
+
+            return attacksData;
+        },
+        base_damage_string (){
+            return this.damage.base_damage + "+" + (this.stats.bonus_damage.max + this.damage.bonus_damage_tmp);
+        },
+    },
+
+    watch: {
+        "buffs": {
+            handler () {
+                this._save('buffs');
+            },
+            deep: true
+        },
+        "stats": {
+            handler () {
+                this._save('stats');
+            },
+            deep: true
+        },
+        "toggles": {
+            handler () {
+                this._save('toggles');
+            },
+            deep: true
+        },
+
+    },
+    mounted (){
+        this.load();
+    },
 });
