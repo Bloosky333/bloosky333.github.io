@@ -68,7 +68,7 @@
         </div>
 
         <div :class="{'d-none': activePage!='hit'}">
-            <hit-rate-table :bab="attacks[0].bab+stats.bonus_bab.max" :crit="stats.crit.max"></hit-rate-table>
+            <hit-rate-table :bab="attacks[0].bab" :crit="stats.crit.max"></hit-rate-table>
         </div>
 
         <div :class="{'d-none': activePage!='dps'}">

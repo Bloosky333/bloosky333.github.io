@@ -147,20 +147,14 @@ Vue.component('hit-rate-table', {
             headers: [],
         };
 
-        let header;
-        let bab = parseInt(this.bab, 10);
-        for (let offset = data.minOffset; offset <= data.maxOffset; offset++) {
-            header = offset < 0 ? offset : "+" + offset;
-            data.headers.push(`${bab+offset}<br>${header}`);
-        }
-
         return data;
     },
     computed: {
         table () {
+            this._createHeader();
+
             let data = [], row;
             let bab = parseInt(this.bab, 10);
-
             for (let ac = this.minAC; ac <= this.maxAC; ac++) {
                 row = [];
                 for (let offset = this.minOffset; offset <= this.maxOffset; offset++) {
@@ -175,6 +169,15 @@ Vue.component('hit-rate-table', {
         },
     },
     methods: {
+        _createHeader() {
+            let header;
+            this.headers = [];
+            let bab = parseInt(this.bab, 10);
+            for (let offset = this.minOffset; offset <= this.maxOffset; offset++) {
+                header = offset < 0 ? offset : "+" + offset;
+                this.headers.push(`${bab+offset}<br>${header}`);
+            }
+        },
         _getHitRate (bab, ac, critDice) {
             let critMiss = 1/20;
             let crit = (21 - critDice) / 20;
