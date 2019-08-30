@@ -21,10 +21,11 @@ body {
 
 .pageSwitcher {
     position: fixed;
-    top: 56px;
+    top: 55px;
     right: 0;
     left: 0;
     z-index: 900;
+    border: none;
 }
 .pageSwitcher>a:hover {
     border-color: transparent !important;
@@ -52,6 +53,11 @@ body {
     position: sticky;
     left: 0px;
 }
+.table.align-middle th,
+.table.align-middle td {
+    vertical-align: middle;
+}
+
 
 .btn.fab {
     position: fixed;
@@ -79,9 +85,12 @@ body {
 
 .switch-box {
     display: flex;
+    align-items: center;
 }
 .switch-box > h6 {
     flex: 1 1 auto;
+    overflow: auto;
+    margin: 0;
 }
 .switch {
     display: inline-block;
@@ -90,6 +99,7 @@ body {
     cursor: pointer;
     flex: 0 0 3em;
     height: 1.7rem;
+    margin-left: 5px;
 }
 .switch::before {
     position: absolute;

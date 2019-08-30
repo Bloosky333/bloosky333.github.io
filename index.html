@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Pathfinder Combat Tool</title>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.min.js" integrity="sha256-chlNFSVx3TdcQ2Xlw7SvnbLAavAQLO0Y/LBiWX04viY=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js" integrity="sha256-VeNaFBVDhoX3H+gJ37DpT/nTuZTdjYro9yBruHjVmoQ=" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="css/styles.css">
-
 </head>
 <body>
 <div id="combat-tool">
@@ -54,13 +55,13 @@
                     <buff :stat="buffs.shadow_clone"></buff>
                     <buff :stat="buffs.vanishing_trick"></buff>
                     <buff :stat="buffs.diamond_soul"></buff>
+                    <buff :stat="buffs.ft_pressure_point"></buff>
+                    <buff :stat="buffs.ft_bleeding_attack"></buff>
+                    <buff :stat="buffs.ft_weapon_focus"></buff>
 
                     <h5 class="text-muted mt-3">Forgotten tricks</h5>
                     <buff :stat="buffs.ft_shadow_clone"></buff>
                     <buff :stat="buffs.ft_vanishing_trick"></buff>
-                    <buff :stat="buffs.ft_pressure_point"></buff>
-                    <buff :stat="buffs.ft_bleeding_attack"></buff>
-                    <buff :stat="buffs.ft_weapon_focus"></buff>
                 </div>
             </div>
 
@@ -73,6 +74,8 @@
 
         <div :class="{'d-none': activePage!='dps'}">
             <stat-setting :stat="stats.target_ac"></stat-setting>
+            <stat-setting :stat="stats.tmp_bonus_bab"></stat-setting>
+            <stat-setting :stat="stats.tmp_bonus_damage"></stat-setting>
 
             <div class="row">
                 <div class="col-6">
@@ -89,7 +92,18 @@
 
             <div class="card mb-1">
                 <div class="card-body">
-                    <p><b>Attacks</b> &nbsp;&nbsp;&nbsp; <b class="pull-right">{{ base_damage_string }}</b></p>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <b>BAB {{attacks[0].bab}}</b><br/>
+                            <small class="text-muted">{{ total_bab_string }}</small>
+                        </div>
+                        <div class="col-6 text-right">
+                            <b>{{ base_damage_string }}</b><br/>
+                            <small class="text-muted">{{ total_damage_string }}</small>
+                        </div>
+
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table table-borderless table-sm text-center">
                             <tbody>
@@ -116,7 +130,7 @@
             <div class="card mb-1">
                 <div class="card-body py-2">
                     <div class="table-responsive">
-                        <table class="table table-borderless mb-0">
+                        <table class="table table-borderless align-middle mb-0">
                             <tbody>
                             <tr>
                                 <td>Base</td>
@@ -162,12 +176,13 @@
         <div :class="{'d-none': activePage!='settings'}">
             <div class="row">
                 <div class="col-md-12 col-lg-6">
-                    <h5 class="text-muted">Character sheet</h5>
+                    <h5 class="text-muted">Character Stats Max</h5>
                     <stat-setting :stat="stats.level"></stat-setting>
                     <stat-setting :stat="stats.hp"></stat-setting>
+                    <stat-setting :stat="stats.ki"></stat-setting>
                     <stat-setting :stat="stats.bonus_bab"></stat-setting>
-                    <stat-setting :stat="stats.crit"></stat-setting>
                     <stat-setting :stat="stats.bonus_damage"></stat-setting>
+                    <stat-setting :stat="stats.crit"></stat-setting>
                     <stat-setting :stat="stats.sneak_attack_d6"></stat-setting>
 
                     <div class="row">
@@ -181,23 +196,22 @@
                             <toggle :toggle="toggles.monk_robe"></toggle>
                         </div>
                     </div>
-
-                    <button class="btn btn-secondary btn-block" type="button" @click="computeMax()"><i class="fa fa-calculator"></i> Compute</button>
                 </div>
                 <div class="col-md-12 col-lg-6">
-                    <h5 class="text-muted mt-3 mt-lg-0">Buffs</h5>
-                    <stat-setting :stat="buffs.barkskin"></stat-setting>
-                    <stat-setting :stat="buffs.elemental_fury"></stat-setting>
-                    <stat-setting :stat="buffs.shadow_clone"></stat-setting>
-                    <stat-setting :stat="buffs.vanishing_trick"></stat-setting>
-                    <stat-setting :stat="buffs.diamond_soul"></stat-setting>
+                    <h5 class="text-muted mt-3 mt-lg-0">Buffs & Skills</h5>
+                    <stat-setting :stat="stats.stunning_fist" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
+                    <stat-setting :stat="buffs.barkskin" :lvl="stats.level.max" :lvl_mult="80"></stat-setting>
+                    <stat-setting :stat="buffs.elemental_fury" :lvl="stats.level.max" :lvl_mult="0.5"></stat-setting>
+                    <stat-setting :stat="buffs.shadow_clone" :lvl="stats.level.max" :lvl_mult="10"></stat-setting>
+                    <stat-setting :stat="buffs.vanishing_trick" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
+                    <stat-setting :stat="buffs.diamond_soul" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
 
                     <h5 class="text-muted mt-3">Forgotten tricks</h5>
-                    <stat-setting :stat="buffs.ft_shadow_clone"></stat-setting>
-                    <stat-setting :stat="buffs.ft_vanishing_trick"></stat-setting>
-                    <stat-setting :stat="buffs.ft_pressure_point"></stat-setting>
-                    <stat-setting :stat="buffs.ft_bleeding_attack"></stat-setting>
-                    <stat-setting :stat="buffs.ft_weapon_focus"></stat-setting>
+                    <stat-setting :stat="buffs.ft_shadow_clone" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
+                    <stat-setting :stat="buffs.ft_vanishing_trick" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
+                    <stat-setting :stat="buffs.ft_pressure_point" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
+                    <stat-setting :stat="buffs.ft_bleeding_attack" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
+                    <stat-setting :stat="buffs.ft_weapon_focus" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
                 </div>
 
             </div>

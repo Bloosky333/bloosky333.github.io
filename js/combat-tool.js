@@ -1,22 +1,22 @@
 Vue.component('stat', {
     props: ['stat'],
     methods: {
-        decreaseStat () {
+        decreaseStat(){
             if(this.stat.current > 0) {
                 this.stat.current -= this.stat.mod;
                 this.stat.mod = 1;
             }
         },
-        increaseStat () {
+        increaseStat(){
             if(this.stat.current < this.stat.max) {
                 this.stat.current += this.stat.mod;
                 this.stat.mod = 1;
             }
         },
-        resetStat () {
+        resetStat(){
             this.stat.current = this.stat.max;
         },
-        emptyStat () {
+        emptyStat(){
             this.stat.current = 0;
         },
 
@@ -24,7 +24,7 @@ Vue.component('stat', {
     template: `
     <div class="card mb-1">
         <div class="card-body py-2">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-6 col-md-3 pt-2 mb-2 mb-md-0">
                     <h6 class="text-capitalize">{{ stat.title }}</h6>
                 </div>
@@ -51,31 +51,41 @@ Vue.component('stat', {
 });
 
 Vue.component('stat-setting', {
-    props: ['stat'],
+    props: ['stat', 'lvl', 'lvl_mult'],
     methods: {
-        decreaseStat () {
+        decreaseStat(){
             if(this.stat.max > 0) {
                 this.stat.max --;
             }
         },
-        increaseStat () {
+        increaseStat(){
             this.stat.max ++;
         },
-        computeStat () {
-            
+        _computeStat(){
+            this.stat.max = this.lvl * parseFloat(this.lvl_mult);
+            this.stat.current = this.stat.max;
+        }
+    },
+    created(){
+        if(this.lvl_mult) {
+            this.computeStat = _.debounce(this._computeStat, 500);
+            this.$watch('lvl', this.computeStat);
         }
     },
     template: `
     <div class="card mb-1">
         <div class="card-body py-2">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-5 pt-2">
                     <h6 class="text-capitalize">{{ stat.title }}</h6>
                 </div>
-                <div class="col-7 col-flex">
+                <div class="col-7 col-flex" v-if="!lvl_mult">
                     <input type="text" class="form-control text-center" v-model="stat.max">
                     <button class="btn btn-success" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-warning" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
+                </div>
+                <div class="col-7 pt-2 text-right" v-if="lvl_mult">
+                    <h6>{{ this.stat.max }}</h6>
                 </div>
             </div>
         </div>
@@ -86,15 +96,15 @@ Vue.component('stat-setting', {
 Vue.component('buff', {
     props: ['stat'],
     methods: {
-        decreaseStat () {
+        decreaseStat(){
             if(this.stat.current > 0) {
                 this.stat.current --;
             }
         },
-        resetStat () {
+        resetStat(){
             this.stat.current = this.stat.max;
         },
-        emptyStat () {
+        emptyStat(){
             this.stat.current = 0;
         },
 
@@ -102,7 +112,7 @@ Vue.component('buff', {
     template: `
     <div class="card mb-1">
         <div class="card-body py-2">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-5 pt-2">
                     <h6 class="text-capitalize">{{ stat.title }}</h6>
                 </div>
@@ -122,14 +132,14 @@ Vue.component('buff', {
 Vue.component('toggle', {
     props: ['toggle'],
     methods: {
-        toggleActive () {
+        toggleActive(){
             this.toggle.active = !this.toggle.active;
         },
     },
     template: `
     <div class="card mb-1">
         <div class="card-body py-2 switch-box">
-            <h6 class="text-capitalize mt-1 mb-0">{{ toggle.title }}</h6>
+            <h6 class="text-capitalize">{{ toggle.title }}</h6>
             <div class="switch" @click="toggleActive" :class="{checked: toggle.active}"></div>
         </div>
     </div>
@@ -138,7 +148,7 @@ Vue.component('toggle', {
 
 Vue.component('hit-rate-table', {
     props: ['bab', 'crit'],
-    data () {
+    data(){
         let data = {
             minAC: 20,
             maxAC: 40,
@@ -150,7 +160,7 @@ Vue.component('hit-rate-table', {
         return data;
     },
     computed: {
-        table () {
+        table(){
             this._createHeader();
 
             let data = [], row;
@@ -210,11 +220,12 @@ Vue.component('hit-rate-table', {
   `
 });
 
-var combatTool = new Vue({
+var combatTools = new Vue({
     el: '#combat-tool',
     data() {
         let data = {
             activePage: "buffs",
+            collections: "stats,buffs,toggles".split(','),
             dbName: "pathfinder_combat_tool",
             stats: {},
             buffs: {},
@@ -227,7 +238,9 @@ var combatTool = new Vue({
             ki: 17,
             stunning_fist: 10,
             bonus_bab: 8,
+            tmp_bonus_bab: 0,
             bonus_damage: 8,
+            tmp_bonus_damage: 0,
             crit: 20,
             target_ac: 20,
             sneak_attack_d6: 2,
@@ -276,57 +289,74 @@ var combatTool = new Vue({
         }
         return data;
     },
+    watch: {
+        "buffs": {
+            handler(){
+                this.save();
+            },
+            deep: true
+        },
+        "stats": {
+            handler(){
+                this.save();
+            },
+            deep: true
+        },
+        "toggles": {
+            handler(){
+                this.save();
+            },
+            deep: true
+        },
+
+    },
+    created(){
+        this.save = _.debounce(this._save, 1000);
+        this.load();
+    },
     methods: {
-        nextTurn (){
+        nextTurn(){
             for(key in this.buffs){
                 if(this.buffs[key].current > 0){
                     this.buffs[key].current--;
                 }
             }
         },
-        load () {
-            if (localStorage){
-                this._load('stats');
-                this._load('buffs');
-                this._load('toggles');
-            }
-        },
-        _load (collectionName) {
-            let fields = "current,max,active".split(',');
-            let data = localStorage.getItem(this.dbName + '_' + collectionName);
-            let field;
+        load (collectionName) {
+            let data = localStorage.getItem(this.dbName);
             if (data) {
+                let vm = this;
                 data = JSON.parse(data);
-                for(let key in data) {
-                    for (let i in fields) {
-                        field = fields[i];
-                        if(data[key][field] !== undefined){
-                            this[collectionName][key][field] = data[key][field];
-                        }
-                    }
-
-                }
+                let fields = "current,max,active".split(',');
+                this.collections.forEach(function(collectionName){
+                    _.forEach(data[collectionName], function(item, itemName){
+                        fields.forEach(function(field){
+                             if(item[field] !== undefined){
+                                 vm[collectionName][itemName][field] = item[field];
+                             }
+                        });
+                    });
+                });
+                console.info("Data Loaded !");
             }
         },
-        save () {
-            this._save('stats');
-            this._save('buffs');
-            this._save('toggles');
+        _save(){
+            let vm = this;
+            let data = {};
+            this.collections.forEach(function(key){
+                data[key] = vm[key];
+            });
+            localStorage.setItem(this.dbName, JSON.stringify(data));
+            console.info("Data Saved !");
         },
-        _save (collectionName){
-            let data = JSON.stringify(this._data[collectionName]);
-            localStorage.setItem(this.dbName + '_' + collectionName, data);
-        },
-        removeSave () {
+        removeSave(){
             let response = confirm('No going back !');
             if (response) {
-                localStorage.removeItem(this.dbName + '_buffs');
-                localStorage.removeItem(this.dbName + '_stats');
-                localStorage.removeItem(this.dbName + '_toggles');
+                localStorage.removeItem(this.dbName);
                 location.reload();
             }
         },
-        resetDPS () {
+        resetDPS(){
             this.self_input= {};
         },
         _getHitRate (bab, ac, critDice) {
@@ -342,17 +372,17 @@ var combatTool = new Vue({
         }
     },
     computed: {
-        self_input_total (){
+        self_input_total(){
             let total = 0;
             for (let key in this.self_input){
                 total += parseInt(this.self_input[key], 10);
             }
             return total;
         },
-        damage (){
+        damage(){
             let damage = {
-                bonus_bab_tmp: 0,
-                bonus_damage_tmp: 0,
+                tmp_bonus_bab: 0,
+                tmp_bonus_damage: 0,
                 bonus_target_ac: 0,
                 ignore_dex_ac: false,
             };
@@ -361,39 +391,41 @@ var combatTool = new Vue({
                 damage.bonus_target_ac -= 2;
                 damage.ignore_dex_ac = true;
             }
+            if (this.toggles.flanking.active) {
+                damage.tmp_bonus_bab += 2;
+            }
             if (this.buffs.vanishing_trick.current > 0) {
                 damage.ignore_dex_ac = true;
-                damage.bonus_bab_tmp += 2;
+                damage.tmp_bonus_bab += 2;
             }
-            if (this.toggles.flanking.active) {
-                damage.bonus_bab_tmp += 2;
+            if (this.buffs.ft_weapon_focus.current > 0) {
+                damage.tmp_bonus_bab += 1;
             }
 
             //Power attack
             if (this.toggles.power_attack.active) {
                 if (this.stats.level.max >=17){
-                    damage.bonus_bab_tmp -= 5;
-                    damage.bonus_damage_tmp += 10;
+                    damage.tmp_bonus_bab -= 5;
+                    damage.tmp_bonus_damage += 10;
                 } else if (this.stats.level.max >=13){
-                    damage.bonus_bab_tmp -= 4;
-                    damage.bonus_damage_tmp += 8;
+                    damage.tmp_bonus_bab -= 4;
+                    damage.tmp_bonus_damage += 8;
                 } else if (this.stats.level.max >=9){
-                    damage.bonus_bab_tmp -= 3;
-                    damage.bonus_damage_tmp += 6;
+                    damage.tmp_bonus_bab -= 3;
+                    damage.tmp_bonus_damage += 6;
                 } else if (this.stats.level.max >=5){
-                    damage.bonus_bab_tmp -= 2;
-                    damage.bonus_damage_tmp += 4;
+                    damage.tmp_bonus_bab -= 2;
+                    damage.tmp_bonus_damage += 4;
                 } else {
-                    damage.bonus_bab_tmp -= 1;
-                    damage.bonus_damage_tmp += 2;
+                    damage.tmp_bonus_bab -= 1;
+                    damage.tmp_bonus_damage += 2;
                 }
             }
 
             // Sneak attack
             if (damage.ignore_dex_ac || this.toggles.flanking.active) {
-
                 if (this.toggles.dispatchment.active) {
-                    damage.bonus_bab_tmp += 2;
+                    damage.tmp_bonus_bab += 2;
                 }
             }
 
@@ -408,7 +440,7 @@ var combatTool = new Vue({
 
             return damage;
         },
-        attacks (){
+        attacks(){
             let attacks = [2,2];
             for (let lvl=4; lvl<=this.stats.level.max; lvl++){
                 for (let i in attacks){
@@ -431,43 +463,38 @@ var combatTool = new Vue({
             }
 
             let attacksData = [];
+            let total_bab;
             for (let i in attacks){
-                attacks[i] += this.stats.bonus_bab.max + this.damage.bonus_bab_tmp;
+                total_bab = attacks[i] + this.total_bonus_bab;
                 attacksData.push({
-                    bab: attacks[i],
-                    hit: this._getHitRate(attacks[i], this.stats.target_ac.max + this.damage.bonus_target_ac, this.stats.crit.max),
+                    base_bab: attacks[i],
+                    bonus_bab: this.total_bonus_bab,
+                    bab: total_bab,
+                    hit: this._getHitRate(total_bab, this.total_target_ac, this.stats.crit.max),
                 })
             }
 
             return attacksData;
         },
-        base_damage_string (){
-            return this.damage.base_damage + "+" + (this.stats.bonus_damage.max + this.damage.bonus_damage_tmp);
+        total_bonus_bab(){
+            return this.stats.bonus_bab.max + this.stats.tmp_bonus_bab.max + this.damage.tmp_bonus_bab;
+        },
+        total_bonus_damage(){
+            return this.stats.bonus_damage.max + this.stats.tmp_bonus_damage.max + this.damage.tmp_bonus_damage;
+        },
+        total_target_ac(){
+            return this.stats.target_ac.max + this.damage.bonus_target_ac;
+        },
+        total_bab_string(){
+            return [this.attacks[0].base_bab,this.stats.bonus_bab.max,this.stats.tmp_bonus_bab.max,this.damage.tmp_bonus_bab].join(' + ');
+        },
+        base_damage_string(){
+            return this.damage.base_damage + "+" + this.total_bonus_damage;
+        },
+        total_damage_string(){
+            return [this.stats.bonus_damage.max,this.stats.tmp_bonus_damage.max,this.damage.tmp_bonus_damage].join(' + ');
         },
     },
 
-    watch: {
-        "buffs": {
-            handler () {
-                this._save('buffs');
-            },
-            deep: true
-        },
-        "stats": {
-            handler () {
-                this._save('stats');
-            },
-            deep: true
-        },
-        "toggles": {
-            handler () {
-                this._save('toggles');
-            },
-            deep: true
-        },
 
-    },
-    mounted (){
-        this.load();
-    },
 });
