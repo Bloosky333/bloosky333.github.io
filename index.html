@@ -69,10 +69,11 @@
         </div>
 
         <div :class="{'d-none': activePage!='hit'}">
-            <hit-rate-table :bab="attacks[0].bab" :crit="stats.crit.max"></hit-rate-table>
+            <hit-rate-table :bab="attacks[0].bab"></hit-rate-table>
         </div>
 
         <div :class="{'d-none': activePage!='dps'}">
+            <h5 class="text-muted">Options</h5>
             <stat-setting :stat="stats.target_ac"></stat-setting>
             <stat-setting :stat="stats.tmp_bonus_bab"></stat-setting>
             <stat-setting :stat="stats.tmp_bonus_damage"></stat-setting>
@@ -90,6 +91,7 @@
                 </div>
             </div>
 
+            <h5 class="text-muted mt-3 mt-lg-0">Attacks</h5>
             <div class="card mb-1">
                 <div class="card-body">
                     <div class="row mb-2">
@@ -105,7 +107,7 @@
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table table-borderless table-sm text-center">
+                        <table class="table table-sm table-borderless table-sm text-center">
                             <tbody>
                             <tr>
                                 <td v-for="atk in attacks">+{{ atk.bab }}</td>
@@ -127,30 +129,31 @@
                 </div>
             </div>
 
+            <h5 class="text-muted mt-3 mt-lg-0">Damage Calculator</h5>
             <div class="card mb-1">
                 <div class="card-body py-2">
                     <div class="table-responsive">
-                        <table class="table table-borderless align-middle mb-0">
+                        <table class="table table-sm table-borderless align-middle mb-0">
                             <tbody>
                             <tr>
                                 <td>Base</td>
                                 <td class="text-muted">{{ base_damage_string }}</td>
-                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.base"></td>
-                            </tr>
-                            <tr v-show="buffs.elemental_fury.current > 0">
-                                <td>Elemental fury</td>
-                                <td class="text-muted">1d6</td>
-                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.elemental_fury"></td>
-                            </tr>
-                            <tr v-show="damage.ignore_dex_ac || this.toggles.flanking.active">
-                                <td>Sneak attack</td>
-                                <td class="text-muted">{{ stats.sneak_attack_d6.max }}d6</td>
-                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.sneak_attack"></td>
+                                <td class="text-right"><input type="number" class="form-control form-control-sm text-center input-w-sm" v-model="self_input.base"></td>
                             </tr>
                             <tr v-show="toggles.elbow_smash.active">
                                 <td>Elbow Smash</td>
                                 <td class="text-muted">{{ base_damage_string }}&nbsp;&nbsp;&nbsp; @+{{ attacks[0].bab - 5}}</td>
-                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.elbow_smash"></td>
+                                <td class="text-right"><input type="number" class="form-control form-control-sm text-center input-w-sm" v-model="self_input.elbow_smash"></td>
+                            </tr>
+                            <tr v-show="buffs.elemental_fury.current > 0">
+                                <td>Elemental fury</td>
+                                <td class="text-muted">1d6</td>
+                                <td class="text-right"><input type="number" class="form-control form-control-sm text-center input-w-sm" v-model="self_input.elemental_fury"></td>
+                            </tr>
+                            <tr v-show="damage.ignore_dex_ac || toggles.flanking.active">
+                                <td>Sneak attack</td>
+                                <td class="text-muted">{{ stats.sneak_attack_d6.max }}d6</td>
+                                <td class="text-right"><input type="number" class="form-control form-control-sm text-center input-w-sm" v-model="self_input.sneak_attack"></td>
                             </tr>
                             <tr v-show="toggles.jabbing_style.active">
                                 <td>Jabbing</td>
@@ -158,18 +161,68 @@
                                     <span v-show="!toggles.jabbing_master.active">1d6</span>
                                     <span v-show="toggles.jabbing_master.active">2d6 / 4d6</span>
                                 </td>
-                                <td class="text-right"><input type="number" class="form-control text-center input-w-sm" v-model="self_input.jabbing"></td>
+                                <td class="text-right"><input type="number" class="form-control form-control-sm text-center input-w-sm" v-model="self_input.jabbing"></td>
                             </tr>
                             <tr>
                                 <th>Total</th>
                                 <th></th>
-                                <th class="text-center  ">{{ self_input_total }}</th>
+                                <th class="text-right">{{ self_input_total }}</th>
                             </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+
+            <h5 class="text-muted mt-3 mt-lg-0">Average Damage Estimation</h5>
+            <div class="card mb-1">
+                <div class="card-body py-2">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>Skill</th>
+                                <th class="text-right">Hits</th>
+                                <th class="text-right">Dmg</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>Base</td>
+                                <td class="text-right">{{ estimation.base.hits }}</td>
+                                <td class="text-right">{{ estimation.base.dmg }}</td>
+                            </tr>
+                            <tr v-show="toggles.elbow_smash.active">
+                                <td>Elbow Smash</td>
+                                <td class="text-right">{{ estimation.elbow_smash.hits }}</td>
+                                <td class="text-right">{{ estimation.elbow_smash.dmg }}</td>
+                            </tr>
+                            <tr v-show="buffs.elemental_fury.current > 0">
+                                <td>Elemental fury</td>
+                                <td class="text-right">{{ estimation.elemental_fury.hits }}</td>
+                                <td class="text-right">{{ estimation.elemental_fury.dmg }}</td>
+                            </tr>
+                            <tr v-show="damage.ignore_dex_ac || toggles.flanking.active">
+                                <td>Sneak attack</td>
+                                <td class="text-right">{{ estimation.sneak_attack.hits }}</td>
+                                <td class="text-right">{{ estimation.sneak_attack.dmg }}</td>
+                            </tr>
+                            <tr v-show="toggles.jabbing_style.active">
+                                <td>Jabbing</td>
+                                <td class="text-right">{{ estimation.jabbing.hits }}</td>
+                                <td class="text-right">{{ estimation.jabbing.dmg }}</td>
+                            </tr>
+                            <tr>
+                                <th>Total</th>
+                                <td class="text-right"></td>
+                                <td class="text-right">{{ estimation.total.dmg }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <button type="button" class="btn btn-warning fab" @click="resetDPS"><i class="fa fa-refresh"></i></button>
         </div>
 

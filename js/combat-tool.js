@@ -63,7 +63,6 @@ Vue.component('stat-setting', {
         },
         _computeStat(){
             this.stat.max = this.lvl * parseFloat(this.lvl_mult);
-            this.stat.current = this.stat.max;
         }
     },
     created(){
@@ -147,7 +146,7 @@ Vue.component('toggle', {
 });
 
 Vue.component('hit-rate-table', {
-    props: ['bab', 'crit'],
+    props: ['bab'],
     data(){
         let data = {
             minAC: 20,
@@ -168,7 +167,7 @@ Vue.component('hit-rate-table', {
             for (let ac = this.minAC; ac <= this.maxAC; ac++) {
                 row = [];
                 for (let offset = this.minOffset; offset <= this.maxOffset; offset++) {
-                    row.push(this._getHitRate(bab + offset, ac, this.crit));
+                    row.push(this._getHitRate(bab + offset, ac));
                 }
                 data.push({
                     header: ac,
@@ -189,15 +188,7 @@ Vue.component('hit-rate-table', {
             }
         },
         _getHitRate (bab, ac, critDice) {
-            let critMiss = 1/20;
-            let crit = (21 - critDice) / 20;
-            let hit = (21 + bab - ac) / 20;
-            if(hit>=1){
-                hit = 1 - critMiss;
-            } else if(hit<=crit) {
-                hit = crit;
-            }
-            return Math.round(hit * 100);
+            return Math.round(this.$parent._getHitRate(bab, ac, critDice));
         }
     },
     template: `
@@ -359,9 +350,9 @@ var combatTools = new Vue({
         resetDPS(){
             this.self_input= {};
         },
-        _getHitRate (bab, ac, critDice) {
+        _getHitRate (bab, ac) {
             let critMiss = 1/20;
-            let crit = (21 - critDice) / 20;
+            let crit = (21 - this.stats.crit.max) / 20;
             let hit = (21 + bab - ac) / 20;
             if(hit>=1){
                 hit = 1 - critMiss;
@@ -369,7 +360,22 @@ var combatTools = new Vue({
                 hit = crit;
             }
             return hit * 100;
-        }
+        },
+        _parseDice(dice){
+            let normalized = dice.toLowerCase().replace(/0-9\+d/g,"");
+            let splitted = normalized.split('d');
+            return {
+                nbDice: parseInt(splitted[0] || 0, 10),
+                faces: parseInt(splitted[1] || 0, 10),
+            }
+        },
+        _diceAvg(dice, fixed) {
+            if(dice){
+                fixed = parseInt(fixed, 10) || 0;
+                let oDice = this._parseDice(dice);
+                return (((oDice.faces + 1) / 2) * oDice.nbDice) + fixed;
+            } else return 0;
+        },
     },
     computed: {
         self_input_total(){
@@ -470,12 +476,77 @@ var combatTools = new Vue({
                     base_bab: attacks[i],
                     bonus_bab: this.total_bonus_bab,
                     bab: total_bab,
-                    hit: this._getHitRate(total_bab, this.total_target_ac, this.stats.crit.max),
+                    hit: this._getHitRate(total_bab, this.total_target_ac),
                 })
             }
 
             return attacksData;
         },
+        estimation(){
+            var vm = this;
+            let dmg = {};
+            let fields = "base,elemental_fury,sneak_attack,elbow_smash,jabbing,total".split(',');
+            fields.forEach(function(field){
+                dmg[field] = {
+                    hits: 0,
+                    dmg: 0,
+                }
+            });
+
+            let hitRate;
+            let avgDmg = this._diceAvg(this.damage.base_damage, this.total_bonus_damage);
+            this.attacks.forEach(function(atk){
+                hitRate = vm._getHitRate(atk.bab, vm.total_target_ac) / 100;
+                dmg.base.hits += hitRate;
+                dmg.base.dmg +=  avgDmg * hitRate;
+            });
+
+            if(this.toggles.elbow_smash.active){
+                dmg.elbow_smash.hits = this._getHitRate(this.attacks[0].bab - 5, this.total_target_ac) / 100;
+                dmg.elbow_smash.dmg = avgDmg * dmg.elbow_smash.hits;
+            }
+
+            let totalHits = dmg.base.hits + dmg.elbow_smash.hits;
+            if(this.buffs.elemental_fury.current > 0){
+                dmg.elemental_fury.hits = totalHits;
+                dmg.elemental_fury.dmg = this._diceAvg("1d6") * dmg.elemental_fury.hits;
+            }
+            if(this.damage.ignore_dex_ac || this.toggles.flanking.active){
+                dmg.sneak_attack.hits = totalHits;
+                dmg.sneak_attack.dmg = this._diceAvg(this.stats.sneak_attack_d6.max + "d6") * dmg.sneak_attack.hits;
+            }
+            if(this.toggles.jabbing_style.active){
+                if(this.toggles.jabbing_master.active){
+                    if(totalHits>=2){
+                        dmg.jabbing.hits = totalHits - 1;
+                        dmg.jabbing.dmg = this._diceAvg("2d6");
+                        if(totalHits>=3){
+                            dmg.jabbing.dmg += this._diceAvg("4d6") * (totalHits - 2);
+                        } else {
+                            dmg.jabbing.dmg *= dmg.jabbing.hits;
+                        }
+                    }
+                } else {
+                    dmg.jabbing.hits = totalHits - 1;
+                    dmg.jabbing.dmg = this._diceAvg("1d6") * dmg.jabbing.hits;
+                }
+            }
+
+            let totalDmg = 0;
+            _.forEach(dmg, function (item) {
+                totalDmg += item.dmg;
+            });
+            dmg.total.dmg = totalDmg;
+
+            _.forEach(dmg, function (item) {
+                item.hits = item.hits.toFixed(2);
+                item.rawdmg = item.dmg;
+                item.dmg = item.dmg.toFixed(2);
+            });
+
+            return dmg;
+        },
+
         total_bonus_bab(){
             return this.stats.bonus_bab.max + this.stats.tmp_bonus_bab.max + this.damage.tmp_bonus_bab;
         },

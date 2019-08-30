@@ -89,7 +89,7 @@ body {
 }
 .switch-box > h6 {
     flex: 1 1 auto;
-    overflow: auto;
+    overflow: hidden;
     margin: 0;
 }
 .switch {
