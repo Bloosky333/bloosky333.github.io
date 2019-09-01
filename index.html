@@ -34,10 +34,10 @@
         </div>
     </nav>
     <nav class="nav nav-tabs nav-fill pageSwitcher bg-dark fixed">
-        <a class="nav-item nav-link" :class="{active: activePage=='buffs'}" @click="activePage='buffs'" href="#">Buffs</a>
-        <a class="nav-item nav-link" :class="{active: activePage=='dps'}" @click="activePage='dps'" href="#">DPS</a>
-        <a class="nav-item nav-link" :class="{active: activePage=='hit'}" @click="activePage='hit'" href="#">Hit rate</a>
-        <a class="nav-item nav-link" :class="{active: activePage=='settings'}" @click="activePage='settings'" href="#">Settings</a>
+        <a class="nav-item nav-link" :class="{active: activePage=='buffs'}" @click="activePage='buffs'" href="#"><i class="fa fa-bolt fa-lg"></i><br/>Buffs</a>
+        <a class="nav-item nav-link" :class="{active: activePage=='dps'}" @click="activePage='dps'" href="#"><i class="fa fa-calculator"></i><br/>DPS</a>
+        <a class="nav-item nav-link" :class="{active: activePage=='hit'}" @click="activePage='hit'" href="#"><i class="fa fa-line-chart"></i><br/>Hit rate</a>
+        <a class="nav-item nav-link" :class="{active: activePage=='settings'}" @click="activePage='settings'" href="#"><i class="fa fa-sliders"></i><br/>Settings</a>
     </nav>
     <div class="container-fluid main-container">
         <div :class="{'d-none': activePage!='buffs'}">

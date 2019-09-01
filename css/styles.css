@@ -18,30 +18,42 @@ body {
 
 
 }
-
+.navbar.fixed-top {
+  -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
+  -moz-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
+  box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
+}
 .pageSwitcher {
     position: fixed;
-    top: 55px;
+    bottom: 0px;
     right: 0;
     left: 0;
     z-index: 900;
     border: none;
+    background-color: white;
+    -webkit-box-shadow: 0px -1px 3px 0px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0px -1px 3px 0px rgba(0,0,0,0.3);
+    box-shadow: 0px -1px 3px 0px rgba(0,0,0,0.3);
+}
+.pageSwitcher>a{
+  background-color: white;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px !important;
+  color: #999;
+  border: none;
 }
 .pageSwitcher>a:hover {
-    border-color: transparent !important;
+    border: none;
 }
 .pageSwitcher>a.active {
-    background-color: #f8f9fa !important;
-    border-color: #f8f9fa !important;
-}
-
-.pageSwitcher>a:not(.active) {
-    color: #FFF;
+    border: none;
+    color: #28a745 !important;
 }
 
 .main-container {
-    padding-top: 120px;
-    padding-bottom: 120px;
+    padding-top: 80px;
+    padding-bottom: 150px;
 }
 
 .input-w-sm {
@@ -61,13 +73,16 @@ body {
 
 .btn.fab {
     position: fixed;
-    bottom: 16px;
+    bottom: 80px;
     right: 16px;
     border-radius: 100%;
     width: 64px;
     height: 64px;
     font-size: 1.2em;
     z-index: 1030;
+    -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
+    box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
 }
 
 .col-flex {
