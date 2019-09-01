@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Pathfinder Combat Tool</title>
-    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <!--<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css" integrity="sha256-zmfNZmXoNWBMemUOo1XUGFfc0ihGGLYdgtJS3KCr/l0=" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
@@ -24,20 +26,18 @@
 
         <div class="dropdown menuDropdown">
             <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-                <i class="fa fa-bars"></i>
+                <i class="fa fa-ellipsis-v"></i>
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <!--<a class="dropdown-item" href="#" @click="load()"><i class="fa fa-folder-open"></i> Load</a>-->
-                <!--<a class="dropdown-item" href="#" @click="save()"><i class="fa fa-save"></i> Save</a>-->
-                <a class="dropdown-item" href="#" @click="removeSave()"><i class="fa fa-trash"></i> Delete all Saves</a>
+                <a class="dropdown-item" @click="activePage='hit'" href="#"><i class="fa fa-chart-line"></i> &nbsp;&nbsp;&nbsp;Hit rate Table</a>
+                <a class="dropdown-item" href="#" @click="removeSave()"><i class="fa fa-trash"></i> &nbsp;&nbsp;&nbsp;Delete all Saves</a>
             </div>
         </div>
     </nav>
-    <nav class="nav nav-tabs nav-fill pageSwitcher bg-dark fixed">
+    <nav class="nav nav-tabs nav-fill pageSwitcher">
         <a class="nav-item nav-link" :class="{active: activePage=='buffs'}" @click="activePage='buffs'" href="#"><i class="fa fa-bolt fa-lg"></i><br/>Buffs</a>
         <a class="nav-item nav-link" :class="{active: activePage=='dps'}" @click="activePage='dps'" href="#"><i class="fa fa-calculator"></i><br/>DPS</a>
-        <a class="nav-item nav-link" :class="{active: activePage=='hit'}" @click="activePage='hit'" href="#"><i class="fa fa-line-chart"></i><br/>Hit rate</a>
-        <a class="nav-item nav-link" :class="{active: activePage=='settings'}" @click="activePage='settings'" href="#"><i class="fa fa-sliders"></i><br/>Settings</a>
+        <a class="nav-item nav-link" :class="{active: activePage=='settings'}" @click="activePage='settings'" href="#"><i class="fa fa-sliders-h"></i><br/>Settings</a>
     </nav>
     <div class="container-fluid main-container">
         <div :class="{'d-none': activePage!='buffs'}">
@@ -50,6 +50,7 @@
                 </div>
                 <div class="col-md-12 col-lg-6">
                     <h5 class="text-muted mt-3 mt-lg-0">Buffs</h5>
+                    <buff :stat="buffs.ki_extra_attack"></buff>
                     <buff :stat="buffs.barkskin"></buff>
                     <buff :stat="buffs.elemental_fury"></buff>
                     <buff :stat="buffs.shadow_clone"></buff>
@@ -86,7 +87,6 @@
                 </div>
                 <div class="col-6">
                     <toggle :toggle="toggles.power_attack"></toggle>
-                    <toggle :toggle="toggles.ki_extra_attack"></toggle>
                     <toggle :toggle="toggles.elbow_smash"></toggle>
                 </div>
             </div>
@@ -197,6 +197,11 @@
                                 <td class="text-right">{{ estimation.elbow_smash.hits }}</td>
                                 <td class="text-right">{{ estimation.elbow_smash.dmg }}</td>
                             </tr>
+                            <tr>
+                                <td>Extra Critical</td>
+                                <td class="text-right">{{ estimation.critical.hits }}</td>
+                                <td class="text-right">{{ estimation.critical.dmg }}</td>
+                            </tr>
                             <tr v-show="buffs.elemental_fury.current > 0">
                                 <td>Elemental fury</td>
                                 <td class="text-right">{{ estimation.elemental_fury.hits }}</td>
@@ -206,6 +211,11 @@
                                 <td>Sneak attack</td>
                                 <td class="text-right">{{ estimation.sneak_attack.hits }}</td>
                                 <td class="text-right">{{ estimation.sneak_attack.dmg }}</td>
+                            </tr>
+                            <tr v-show="(damage.ignore_dex_ac || toggles.flanking.active) && buffs.ft_bleeding_attack.current > 0">
+                                <td>Bleeding</td>
+                                <td class="text-right">{{ estimation.bleeding_attack.hits }}</td>
+                                <td class="text-right">{{ estimation.bleeding_attack.dmg }}</td>
                             </tr>
                             <tr v-show="toggles.jabbing_style.active">
                                 <td>Jabbing</td>
@@ -223,7 +233,7 @@
                 </div>
             </div>
 
-            <button type="button" class="btn btn-warning fab" @click="resetDPS"><i class="fa fa-refresh"></i></button>
+            <button type="button" class="btn btn-warning fab" @click="resetDPS"><i class="fa fa-sync-alt"></i></button>
         </div>
 
         <div :class="{'d-none': activePage!='settings'}">
@@ -237,7 +247,9 @@
                     <stat-setting :stat="stats.bonus_damage"></stat-setting>
                     <stat-setting :stat="stats.crit"></stat-setting>
                     <stat-setting :stat="stats.sneak_attack_d6"></stat-setting>
-
+                </div>
+                <div class="col-md-12 col-lg-6">
+                    <h5 class="text-muted mt-3 mt-lg-0">Active Skills</h5>
                     <div class="row">
                         <div class="col-6">
                             <toggle :toggle="toggles.jabbing_style"></toggle>
@@ -249,26 +261,38 @@
                             <toggle :toggle="toggles.monk_robe"></toggle>
                         </div>
                     </div>
+
+                    <h5 class="text-muted mt-3 mt-lg-0">Ki Cost</h5>
+                    <stat-setting :stat="ki_costs.ki_extra_attack"></stat-setting>
+                    <stat-setting :stat="ki_costs.barkskin"></stat-setting>
+                    <stat-setting :stat="ki_costs.elemental_fury"></stat-setting>
+                    <stat-setting :stat="ki_costs.shadow_clone"></stat-setting>
+                    <stat-setting :stat="ki_costs.vanishing_trick"></stat-setting>
+                    <stat-setting :stat="ki_costs.diamond_soul"></stat-setting>
+                    <stat-setting :stat="ki_costs.forgotten_trick"></stat-setting>
                 </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-12 col-lg-6">
-                    <h5 class="text-muted mt-3 mt-lg-0">Buffs & Skills</h5>
+                    <h5 class="text-muted mt-3 mt-lg-0">Buffs & Skills (Max rounds)</h5>
                     <stat-setting :stat="stats.stunning_fist" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
+                    <stat-setting :stat="buffs.ki_extra_attack" :lvl="1" :lvl_mult="1"></stat-setting>
                     <stat-setting :stat="buffs.barkskin" :lvl="stats.level.max" :lvl_mult="80"></stat-setting>
                     <stat-setting :stat="buffs.elemental_fury" :lvl="stats.level.max" :lvl_mult="0.5"></stat-setting>
                     <stat-setting :stat="buffs.shadow_clone" :lvl="stats.level.max" :lvl_mult="10"></stat-setting>
                     <stat-setting :stat="buffs.vanishing_trick" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
                     <stat-setting :stat="buffs.diamond_soul" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
-
-                    <h5 class="text-muted mt-3">Forgotten tricks</h5>
+                </div>
+                <div class="col-md-12 col-lg-6">
+                    <h5 class="text-muted mt-3">Forgotten tricks (Max rounds)</h5>
                     <stat-setting :stat="buffs.ft_shadow_clone" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
                     <stat-setting :stat="buffs.ft_vanishing_trick" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
                     <stat-setting :stat="buffs.ft_pressure_point" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
                     <stat-setting :stat="buffs.ft_bleeding_attack" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
                     <stat-setting :stat="buffs.ft_weapon_focus" :lvl="stats.level.max" :lvl_mult="1"></stat-setting>
                 </div>
-
             </div>
-
         </div>
     </div>
 </div>

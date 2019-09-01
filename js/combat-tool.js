@@ -19,7 +19,6 @@ Vue.component('stat', {
         emptyStat(){
             this.stat.current = 0;
         },
-
     },
     template: `
     <div class="card mb-1">
@@ -42,7 +41,7 @@ Vue.component('stat', {
                     </select>
                     <button class="btn btn-success" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-warning" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
-                    <button class="btn btn-secondary" type="button" @click="resetStat()"><i class="fa fa-refresh"></i></button>
+                    <button class="btn btn-secondary" type="button" @click="resetStat()"><i class="fa fa-sync-alt"></i></button>
                 </div>
             </div>
         </div>
@@ -67,6 +66,7 @@ Vue.component('stat-setting', {
     },
     created(){
         if(this.lvl_mult) {
+            if(this.stat.max == 0) this._computeStat();
             this.computeStat = _.debounce(this._computeStat, 500);
             this.$watch('lvl', this.computeStat);
         }
@@ -102,11 +102,11 @@ Vue.component('buff', {
         },
         resetStat(){
             this.stat.current = this.stat.max;
+            this.$parent._useKi(this.stat.name);
         },
         emptyStat(){
             this.stat.current = 0;
         },
-
     },
     template: `
     <div class="card mb-1">
@@ -115,11 +115,11 @@ Vue.component('buff', {
                 <div class="col-5 pt-2">
                     <h6 class="text-capitalize">{{ stat.title }}</h6>
                 </div>
-                <div class="col-2 flex-col">
+                <div class="col-2 flex-col text-center">
                     <h3 class="m-0"><span class="badge" :class="{'badge-success': stat.current > 1, 'badge-warning': stat.current==1, 'badge-danger': !stat.current}">{{ stat.current }}</span></h3>
                 </div>
                 <div class="col-5 text-right">
-                    <button class="btn btn-secondary" type="button" @click="resetStat()"><i class="fa fa-refresh"></i></button>
+                    <button class="btn btn-secondary" type="button" @click="resetStat()"><i class="fa fa-sync-alt"></i></button>
                     <button class="btn btn-secondary" type="button" @click="emptyStat()"><i class="fa fa-trash"></i></button>
                 </div>
             </div>
@@ -188,7 +188,7 @@ Vue.component('hit-rate-table', {
             }
         },
         _getHitRate (bab, ac, critDice) {
-            return Math.round(this.$parent._getHitRate(bab, ac, critDice));
+            return Math.round(this.$parent._getHitRate(bab, ac, critDice) * 100);
         }
     },
     template: `
@@ -214,13 +214,18 @@ Vue.component('hit-rate-table', {
 var combatTools = new Vue({
     el: '#combat-tool',
     data() {
+        let vm = this;
+
         let data = {
             activePage: "buffs",
-            collections: "stats,buffs,toggles".split(','),
+            collections: "stats,buffs,toggles,ki_costs".split(','),
+            buffNames: "ki_extra_attack,barkskin,elemental_fury,shadow_clone,vanishing_trick,diamond_soul,ft_shadow_clone,ft_vanishing_trick,ft_pressure_point,ft_bleeding_attack,ft_weapon_focus".split(','),
+            toggleNames: "stunned,dispatchment,elemental_fury,flanking,power_attack,jabbing_style,jabbing_master,large_size,monk_robe,elbow_smash,medusa_wrath".split(','),
             dbName: "pathfinder_combat_tool",
             stats: {},
             buffs: {},
             toggles: {},
+            ki_costs: {},
             self_input: {}
         };
         let stats = {
@@ -237,47 +242,30 @@ var combatTools = new Vue({
             sneak_attack_d6: 2,
         };
         for(let key in stats) {
-            data.stats[key] = {
-                name: key,
-                title: key.replace(/_/g, ' '),
-                current: stats[key],
-                max: stats[key],
-                mod: 1,
-            };
+            vm._add_stat(data.stats, key, stats[key], stats[key]);
         }
 
-        let buffs = {
-            barkskin: stats.level * 80,
-            elemental_fury: 4,
-            shadow_clone: stats.level * 10,
-            vanishing_trick: stats.level,
-            diamond_soul: stats.level,
-            ft_shadow_clone: stats.level,
-            ft_vanishing_trick: stats.level,
-            ft_pressure_point: stats.level,
-            ft_bleeding_attack: stats.level,
-            ft_weapon_focus: stats.level,
+        data.buffNames.forEach(function(key){
+            vm._add_stat(data.buffs, key);
+        });
+
+        data.toggleNames.forEach(function(key){
+            vm._add_stat(data.toggles, key);
+        });
+
+        let ki_costs = {
+            ki_extra_attack: 1,
+            barkskin: 1,
+            elemental_fury: 1,
+            shadow_clone: 1,
+            vanishing_trick: 1,
+            diamond_soul: 2,
+            forgotten_trick: 2,
         };
-        for(let key in buffs) {
-            data.buffs[key] = {
-                name: key,
-                title: key.replace('ft_', '').replace(/_/g, ' '),
-                current: 0,
-                max: buffs[key],
-                mod: 1,
-            };
+        for(let key in ki_costs) {
+            this._add_stat(data.ki_costs, key, 0, ki_costs[key]);
         }
 
-        let toggles = "stunned,dispatchment,elemental_fury,flanking,power_attack,jabbing_style,jabbing_master,large_size,monk_robe,ki_extra_attack,elbow_smash,medusa_wrath".split(',');
-        let key;
-        for(let i in toggles){
-            key = toggles[i];
-            data.toggles[key] = {
-                name: key,
-                title: key.replace(/_/g, ' '),
-                active: false,
-            }
-        }
         return data;
     },
     watch: {
@@ -299,13 +287,43 @@ var combatTools = new Vue({
             },
             deep: true
         },
-
+        "ki_costs": {
+            handler(){
+                this.save();
+            },
+            deep: true
+        },
     },
     created(){
         this.save = _.debounce(this._save, 1000);
         this.load();
     },
     methods: {
+        // TODO: Toast changes
+        _useKi(skillName){
+            let consumption = 0;
+            if(skillName.indexOf('ft_') === 0){
+                consumption = this.ki_costs['forgotten_trick'].max;
+            } else {
+                if(this.ki_costs[skillName]) {
+                    consumption = this.ki_costs[skillName].max;
+                }
+            }
+            this.stats.ki.current -= consumption;
+        },
+        _add_stat(collection, statName, defaultCurrent, defaultMax){
+            defaultCurrent = defaultCurrent || 0;
+            defaultMax = defaultMax || 0;
+
+            collection[statName] = {
+                name: statName,
+                title: statName.replace('ft_', '').replace(/_/g, ' '),
+                current: defaultCurrent,
+                max: defaultMax,
+                mod: 1,
+                active: false,
+            };
+        },
         nextTurn(){
             for(key in this.buffs){
                 if(this.buffs[key].current > 0){
@@ -331,6 +349,7 @@ var combatTools = new Vue({
                 console.info("Data Loaded !");
             }
         },
+        // TODO: Different profiles
         _save(){
             let vm = this;
             let data = {};
@@ -352,14 +371,18 @@ var combatTools = new Vue({
         },
         _getHitRate (bab, ac) {
             let critMiss = 1/20;
-            let crit = (21 - this.stats.crit.max) / 20;
+            let critRate = (21 - this.stats.crit.max) / 20;
             let hit = (21 + bab - ac) / 20;
             if(hit>=1){
                 hit = 1 - critMiss;
-            } else if(hit<=crit) {
-                hit = crit;
+            } else if(hit<=critRate) {
+                hit = critRate;
             }
-            return hit * 100;
+            return hit;
+        },
+        _getCriticalExtaHitRate(hitRate){
+            let critRate = (21 - this.stats.crit.max) / 20;
+            return critRate * hitRate;
         },
         _parseDice(dice){
             let normalized = dice.toLowerCase().replace(/0-9\+d/g,"");
@@ -460,7 +483,7 @@ var combatTools = new Vue({
             if (this.stats.level.max >= 14) {
                 attacks.unshift(attacks[0]);
             }
-            if (this.toggles.ki_extra_attack.active) {
+            if (this.buffs.ki_extra_attack.current > 0) {
                 attacks.unshift(attacks[0]);
             }
             if (this.toggles.medusa_wrath.active && this.toggles.stunned.active) {
@@ -476,16 +499,16 @@ var combatTools = new Vue({
                     base_bab: attacks[i],
                     bonus_bab: this.total_bonus_bab,
                     bab: total_bab,
-                    hit: this._getHitRate(total_bab, this.total_target_ac),
+                    hit: this._getHitRate(total_bab, this.total_target_ac) * 100,
                 })
             }
 
             return attacksData;
         },
         estimation(){
-            var vm = this;
+            let vm = this;
             let dmg = {};
-            let fields = "base,elemental_fury,sneak_attack,elbow_smash,jabbing,total".split(',');
+            let fields = "base,critical,bleeding_attack,elemental_fury,sneak_attack,elbow_smash,jabbing,total".split(',');
             fields.forEach(function(field){
                 dmg[field] = {
                     hits: 0,
@@ -496,15 +519,18 @@ var combatTools = new Vue({
             let hitRate;
             let avgDmg = this._diceAvg(this.damage.base_damage, this.total_bonus_damage);
             this.attacks.forEach(function(atk){
-                hitRate = vm._getHitRate(atk.bab, vm.total_target_ac) / 100;
+                hitRate = vm._getHitRate(atk.bab, vm.total_target_ac);
                 dmg.base.hits += hitRate;
                 dmg.base.dmg +=  avgDmg * hitRate;
             });
 
             if(this.toggles.elbow_smash.active){
-                dmg.elbow_smash.hits = this._getHitRate(this.attacks[0].bab - 5, this.total_target_ac) / 100;
+                dmg.elbow_smash.hits = this._getHitRate(this.attacks[0].bab - 5, this.total_target_ac);
                 dmg.elbow_smash.dmg = avgDmg * dmg.elbow_smash.hits;
             }
+
+            dmg.critical.hits += vm._getCriticalExtaHitRate(dmg.base.hits + dmg.elbow_smash.hits);
+            dmg.critical.dmg += avgDmg * dmg.critical.hits;
 
             let totalHits = dmg.base.hits + dmg.elbow_smash.hits;
             if(this.buffs.elemental_fury.current > 0){
@@ -514,7 +540,12 @@ var combatTools = new Vue({
             if(this.damage.ignore_dex_ac || this.toggles.flanking.active){
                 dmg.sneak_attack.hits = totalHits;
                 dmg.sneak_attack.dmg = this._diceAvg(this.stats.sneak_attack_d6.max + "d6") * dmg.sneak_attack.hits;
+                if(this.buffs.ft_bleeding_attack.current > 0){
+                    dmg.bleeding_attack.hits = 1;
+                    dmg.bleeding_attack.dmg = this.stats.sneak_attack_d6.max;
+                }
             }
+
             if(this.toggles.jabbing_style.active){
                 if(this.toggles.jabbing_master.active){
                     if(totalHits>=2){
