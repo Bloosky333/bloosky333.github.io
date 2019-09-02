@@ -23,9 +23,9 @@ var combatTools = new Vue({
             tmp_bonus_bab: 0,
             bonus_damage: 8,
             tmp_bonus_damage: 0,
-            crit: 20,
-            target_ac: 20,
-            sneak_attack_d6: 2,
+            crit: 20, // TODO: Change to critical dice
+            target_ac: 24,
+            sneak_attack_d6: 1,
         };
         for(let key in stats) {
             this._add_stat(data.stats, key, stats[key], stats[key]);
@@ -349,6 +349,19 @@ var combatTools = new Vue({
             if (response) {
                 localStorage.removeItem(this.dbName);
                 location.reload();
+            }
+        },
+        resetBuffs(){
+            let response = confirm('No going back !');
+            if (response) {
+                _.forEach(this.buffs, (buff)=>{
+                  buff.current = 0;
+                });
+                
+                let stats = "hp,ki".split(",");
+                stats.forEach((key)=>{
+                  this.stats[key].current = this.stats[key].max;
+                })
             }
         },
         resetDPS(){
