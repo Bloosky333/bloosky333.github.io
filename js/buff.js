@@ -26,12 +26,11 @@ Vue.component('buff', {
                 <div class="col-5 pt-2">
                     <h6 class="text-capitalize">{{ stat.title }}<br/><slot></slot></h6>
                 </div>
-                <div class="col-2 flex-col text-center">
-                    <span class="badge buffBadge" :class="{'badge-success': stat.current > 1, 'badge-warning': stat.current==1, 'badge-danger': !stat.current}">{{ stat.current }}</span>
-                </div>
-                <div class="col-5 text-right">
-                    <button class="btn btn-success" type="button" @click="resetStat()" :disabled="!canRenew"><i class="fa fa-sync-alt"></i></button>
-                    <button class="btn btn-secondary" type="button" @click="emptyStat()" :disabled="!stat.current"><i class="fa fa-trash"></i></button>
+                <div class="col-7 text-right">
+                    <span class="badge buffBadge mr-3" :class="{'badge-success': stat.current > 1, 'badge-warning': stat.current==1, 'badge-danger': !stat.current}">{{ stat.current }}</span>
+              
+                    <button class="btn btn-success mt-n2" type="button" @click="resetStat()" :disabled="!canRenew"><i class="fa fa-sync-alt"></i></button>
+                    <button class="btn btn-secondary mt-n2" type="button" @click="emptyStat()" :disabled="!stat.current"><i class="fa fa-trash"></i></button>
                 </div>
             </div>
         </div>
