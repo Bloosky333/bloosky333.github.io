@@ -9,9 +9,9 @@ Vue.component('card', {
 });
 
 Vue.component('atype', {
-    props: ['type'],
+    props: ['type', 'ki'],
     template: `
-    <small class="text-muted">{{ type }} Action</small>
+    <small class="text-muted">{{ type }} Action <span v-if="ki"> - {{ ki.max }} Ki</span></small>
   `
 });
 

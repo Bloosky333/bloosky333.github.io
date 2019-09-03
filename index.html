@@ -51,20 +51,20 @@
             </card>
 
             <card :title="'Buffs'">
-                <buff :stat="buffs.ki_extra_attack"><atype :type="'Swift'"></atype></buff>
-                <buff :stat="buffs.barkskin"><atype :type="'Standard'"></atype></buff>
-                <buff :stat="buffs.elemental_fury"><atype :type="'Swift'"></atype></buff>
-                <buff :stat="buffs.abundant_step"><atype :type="'Move'"></atype></buff>
-                <buff :stat="buffs.diamond_soul"><atype :type="'Swift'"></atype></buff>
-                <buff :stat="buffs.shadow_clone" :depends="buffs.ft_shadow_clone"><atype :type="'Standard'"></atype></buff>
-                <buff :stat="buffs.vanishing_trick" :depends="buffs.ft_vanishing_trick"><atype :type="'Swift'"></atype></buff>
-                <buff :stat="buffs.ft_pressure_point"><atype :type="'Free'"></atype></buff>
-                <buff :stat="buffs.ft_bleeding_attack"><atype :type="'Free'"></atype></buff>
-                <buff :stat="buffs.ft_weapon_focus"><atype :type="'Free'"></atype></buff>
+                <buff :stat="buffs.ki_extra_attack"><atype :type="'Swift'" :ki="ki_costs['ki_extra_attack']"></atype></buff>
+                <buff :stat="buffs.barkskin"><atype :type="'Standard'" :ki="ki_costs['barkskin']"></atype></buff>
+                <buff :stat="buffs.elemental_fury"><atype :type="'Swift'" :ki="ki_costs['elemental_fury']"></atype></buff>
+                <buff :stat="buffs.abundant_step"><atype :type="'Move'" :ki="ki_costs['abundant_step']"></atype></buff>
+                <buff :stat="buffs.diamond_soul"><atype :type="'Swift'" :ki="ki_costs['diamond_soul']"></atype></buff>
+                <buff :stat="buffs.shadow_clone" :depends="buffs.ft_shadow_clone"><atype :type="'Standard'" :ki="ki_costs['shadow_clone']"></atype></buff>
+                <buff :stat="buffs.vanishing_trick" :depends="buffs.ft_vanishing_trick"><atype :type="'Swift'" :ki="ki_costs['vanishing_trick']"></atype></buff>
+                <buff :stat="buffs.ft_pressure_point"><atype :type="'Free'" :ki="ki_costs['forgotten_trick']"></atype></buff>
+                <buff :stat="buffs.ft_bleeding_attack"><atype :type="'Free'" :ki="ki_costs['forgotten_trick']"></atype></buff>
+                <buff :stat="buffs.ft_weapon_focus"><atype :type="'Free'" :ki="ki_costs['forgotten_trick']"></atype></buff>
             </card>
             <card :title="'Forgotten tricks'">
-                <buff :stat="buffs.ft_shadow_clone"><atype :type="'Free'"></atype></buff>
-                <buff :stat="buffs.ft_vanishing_trick"><atype :type="'Free'"></atype></buff>
+                <buff :stat="buffs.ft_shadow_clone"><atype :type="'Free'" :ki="ki_costs['forgotten_trick']"></atype></buff>
+                <buff :stat="buffs.ft_vanishing_trick"><atype :type="'Free'" :ki="ki_costs['forgotten_trick']"></atype></buff>
             </card>
 
             <button type="button" class="btn btn-warning fab" :disabled="disableNextTurn" @click="nextTurn"><i class="fa fa-step-forward"></i></button>
