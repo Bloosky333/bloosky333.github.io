@@ -41,7 +41,7 @@ Vue.component('hit-rate-table', {
             }
         },
         _getHitRate (bab, ac, critDice) {
-            return Math.round(this.$parent._getHitRate(bab, ac, critDice) * 100);
+            return Math.round(this.$root._getHitRate(bab, ac, critDice) * 100);
         }
     },
     template: `

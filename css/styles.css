@@ -1,17 +1,12 @@
 body {
     background: #f8f9fa;
 }
-
-
 .main-container {
     padding-top: 120px;
     padding-bottom: 150px;
 }
 
-.btn:focus {
-    box-shadow: none !important;
-}
-
+/*Menu Dropdonw ===============================================*/
 .menuDropdown>.btn {
     color: #FFF;
 }
@@ -23,6 +18,7 @@ body {
     right: 0;
 }
 
+/*Status Bar ===============================================*/
 .statusBar {
     position: fixed;
     top: 55px;
@@ -31,7 +27,7 @@ body {
     -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
     -moz-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
     box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
-    padding: 1px 1rem .5rem 1rem;
+    padding: 2px 1rem 8px 1rem;
     z-index: 900;
 }
 .statusBar .circle{
@@ -71,11 +67,9 @@ body {
     font-weight: bold;
     line-height: 1.45rem;
 }
-
 .statusBar .popover {
     top: 20px;
 }
-
 .statusBar .popover>.arrow {
     right: 0;
 }
@@ -89,6 +83,7 @@ body {
     padding: 2px 10px;
 }
 
+/*Page Switcher ===============================================*/
 .pageSwitcher {
     position: fixed;
     bottom: 0;
@@ -101,11 +96,10 @@ body {
     border: none;
 }
 .pageSwitcher>a{
-    background-color: white;
     -webkit-border-radius: 0px !important;
     -moz-border-radius: 0px !important;
     border-radius: 0px !important;
-    color: #999;
+    color: #f8f9fa;
     border: none !important;
 }
 .pageSwitcher>a:hover {
@@ -113,14 +107,11 @@ body {
 }
 .pageSwitcher>a.active {
     border: none;
-    color: #28a745 !important;
+    color: #ffc107 !important;
+    background: none !important;
 }
 
-.input-w-sm {
-    width: 70px;
-    display: inline-block;
-}
-
+/*Tables ===============================================*/
 .table-sticky {
     position: sticky;
     left: 0px;
@@ -130,7 +121,39 @@ body {
     vertical-align: middle;
 }
 
+/*CARD ===============================================*/
+@media (max-width: 575.98px) {
+    .card-columns {
 
+    }
+}
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .card-columns {
+        column-count: 1;
+    }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .card-columns {
+        column-count: 2;
+    }
+}
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .card-columns {
+        column-count: 2;
+    }
+}
+@media (min-width: 1200px) {
+    .card-columns {
+        column-count: 3;
+    }
+}
+.card-columns>.card {
+    border: none;
+    background: none;
+}
+
+
+/*FAB ===============================================*/
 .btn.fab {
     position: fixed;
     bottom: 80px;
@@ -145,19 +168,7 @@ body {
     box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.3);
 }
 
-.col-flex {
-    display: flex;
-}
-.col-flex>* {
-    height: 38px;
-}
-.col-flex>*:not(:first-child) {
-    margin-left: 4px;
-}
-.col-flex>select {
-    flex: 1 1 auto;
-}
-
+/*Box with switch ===============================================*/
 .switch-box {
     display: flex;
     align-items: center;
@@ -172,15 +183,15 @@ body {
     position: relative;
     vertical-align: top;
     cursor: pointer;
-    flex: 0 0 3em;
-    height: 1.7rem;
+    flex: 0 0 2.8em;
+    height: 1.5rem;
     margin-left: 5px;
 }
 .switch::before {
     position: absolute;
     display: block;
-    width: 3rem;
-    height: 1.7rem;
+    width: 2.8rem;
+    height: 1.5rem;
     content: "";
     background-color: #fff;
     border: #adb5bd solid 1px;
@@ -193,15 +204,13 @@ body {
     display: block;
     content: "";
     background: no-repeat 50%/50% 50% #adb5bd;
-    top: 2px;
-    left: 2px;
-    width: calc(1.7rem - 4px);
-    height: calc(1.7rem - 4px);
+    top: 3px;
+    left: 3px;
+    width: calc(1.5rem - 6px);
+    height: calc(1.5rem - 6px);
     border-radius: 1.5rem;
     transition: transform .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-transform .15s ease-in-out;
 }
-
-
 .switch.checked::before {
     color: #fff;
     border-color: #28a745;
@@ -213,6 +222,56 @@ body {
     transform: translateX(1.3rem);
 }
 
+/*MISC ===============================================*/
+.form-control,
+.custom-select,
+.input-group-text{
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 2px solid #28a745;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+    padding-bottom: 0;
+}
+.form-control{
+    padding: 0;
+}
+.custom-select{
+    padding-left: 0.5rem;
+    padding-top: 0.1rem;
+}
+.form-control:focus,
+.custom-select:focus {
+    box-shadow: none;
+}
+.input-group-text {
+    background: none;
+    font-size: 0.7rem;
+    padding: 0.3rem 0 0 0;
+    color: #28a745;
+}
+
+.w-70-px {
+    width: 70px !important;
+    flex: 0 0 70px !important;
+}
+.w-50-px {
+    width: 50px !important;
+    flex: 0 0 50px !important;
+}
+.w-40-px {
+    width: 40px !important;
+    flex: 0 0 40px !important;
+}
+.w-30-px{
+    width: 30px !important;
+    flex: 0 0 30px !important;
+}
 .buffBadge {
     font-size: 1.6rem;
+}
+.btn:focus {
+    box-shadow: none !important;
 }

@@ -23,18 +23,14 @@ Vue.component('stat-setting', {
     template: `
     <div class="card mb-1">
         <div class="card-body py-2">
-            <div class="row align-items-center">
-                <div class="col-5 pt-2">
-                    <h6 class="text-capitalize">{{ stat.title }}</h6>
-                </div>
-                <div class="col-7 col-flex" v-if="!lvl_mult">
-                    <input type="text" class="form-control text-center" v-model="stat.max">
+            <div class="d-flex align-items-center">
+                <h6 class="text-capitalize m-0 mr-auto">{{ stat.title }}</h6>
+                <div v-if="!lvl_mult">
+                    <input type="text" class="form-control text-center w-70-px d-inline-block" v-model="stat.max">
                     <button class="btn btn-success" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
                     <button class="btn btn-warning" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
                 </div>
-                <div class="col-7 pt-2 text-right" v-if="lvl_mult">
-                    <h6>{{ this.stat.max }}</h6>
-                </div>
+                <h6 class="m-0" v-if="lvl_mult">{{ this.stat.max }}</h6>
             </div>
         </div>
     </div>

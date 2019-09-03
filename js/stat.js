@@ -23,26 +23,25 @@ Vue.component('stat', {
     template: `
     <div class="card mb-1">
         <div class="card-body py-2">
-            <div class="row align-items-center">
-                <div class="col-6 col-md-3 pt-2 mb-2 mb-md-0">
-                    <h6 class="text-capitalize">{{ stat.title }}</h6>
-                </div>
-                <div class="col-6 col-md-3 mb-2 mb-md-0">
-                    <div class="input-group">
-                        <input type="text" class="form-control text-center" v-model="stat.current" :class="{'text-danger': !stat.current}">
-                        <div class="input-group-append">
-                            <span class="input-group-text input-group-text-fixed-w-sm">/ {{ stat.max }}</span>
-                        </div>
+            <h6 class="text-capitalize m-0">{{ stat.title }}</h6>
+            <div class="d-flex align-items-center">
+                <div class="input-group mr-auto">
+                    <input type="text" class="form-control w-40-px text-right pr-2" v-model="stat.current" :class="{'text-danger': !stat.current}">
+                    <div class="input-group-append">
+                        <span class="input-group-text w-30-px">/ {{ stat.max }}</span>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 text-right col-flex">
-                    <select class="custom-select w-auto" v-model="stat.mod">
+                <div class="input-group flex-nowrap w-auto">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">+/-</span>
+                    </div>
+                    <select class="custom-select w-50-px" v-model="stat.mod">
                         <option v-for="index in 50" :key="index" :value="index">{{ index }}</option>
                     </select>
-                    <button class="btn btn-success" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
-                    <button class="btn btn-warning" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
-                    <button class="btn btn-secondary" type="button" @click="resetStat()"><i class="fa fa-sync-alt"></i></button>
                 </div>
+                <button class="btn btn-success ml-1" type="button" @click="increaseStat()"><i class="fa fa-plus"></i></button>
+                <button class="btn btn-warning ml-1" type="button" @click="decreaseStat()"><i class="fa fa-minus"></i></button>
+                <button class="btn btn-secondary ml-1" type="button" @click="resetStat()"><i class="fa fa-sync-alt"></i></button>
             </div>
         </div>
     </div>
