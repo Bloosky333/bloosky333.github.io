@@ -35,7 +35,7 @@ Vue.component('stat', {
                     <div class="input-group-prepend">
                         <span class="input-group-text">+/-</span>
                     </div>
-                    <select class="custom-select w-50-px" v-model="stat.mod">
+                    <select class="custom-select w-70-px" v-model="stat.mod">
                         <option v-for="index in 50" :key="index" :value="index">{{ index }}</option>
                     </select>
                 </div>
