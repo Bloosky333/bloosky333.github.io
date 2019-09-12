@@ -316,7 +316,7 @@ var combatTools = new Vue({
             this.disableNextTurn = true;
             _.delay(()=>{
                 this.disableNextTurn = false;
-            }, 5000);
+            }, 1000);
         },
         load (collectionName) {
             let data = localStorage.getItem(this.dbName);
@@ -357,7 +357,7 @@ var combatTools = new Vue({
                 _.forEach(this.buffs, (buff)=>{
                   buff.current = 0;
                 });
-                
+
                 let stats = "hp,ki".split(",");
                 stats.forEach((key)=>{
                   this.stats[key].current = this.stats[key].max;
