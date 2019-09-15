@@ -1,14 +1,15 @@
 body {
-    background: #f8f9fa;
+    background: #22252A;
+    color: #eee;
 }
 .main-container {
-    padding-top: 120px;
+    padding-top: 130px;
     padding-bottom: 150px;
 }
 
 /*Menu Dropdonw ===============================================*/
 .menuDropdown>.btn {
-    color: #FFF;
+    color: #eee;
 }
 .menuDropdown>.dropdown-toggle::after {
     display: none;
@@ -16,6 +17,11 @@ body {
 .menuDropdown>.dropdown-menu {
     left: auto;
     right: 0;
+    background: #22252A;
+    border: none;
+}
+.menuDropdown>.dropdown-menu a{
+  color: #eee;
 }
 
 /*Status Bar ===============================================*/
@@ -31,7 +37,7 @@ body {
     z-index: 900;
 }
 .statusBar .circle{
-    border: 2px solid #FFF;
+    border: 2px solid #2D3035;
     background: #e9ecef;
     -webkit-border-radius: 100%;
     -moz-border-radius: 100%;
@@ -43,8 +49,7 @@ body {
 }
 .statusBar .bar{
     position: relative;
-    border: 2px solid #FFF;
-    background: #999;
+    border: 2px solid #22252A;
     height: 26px;
     margin-top: 7px;
     z-index: 19;
@@ -57,6 +62,7 @@ body {
     -moz-border-radius: 0;
     border-radius: 0px;
     height: 100%;
+    background: #22252A;
 }
 .statusBar .bar>.progress>.progress-text {
     position: absolute;
@@ -112,6 +118,9 @@ body {
 }
 
 /*Tables ===============================================*/
+.table td, .table th {
+  color: #eee;
+}
 .table-sticky {
     position: sticky;
     left: 0px;
@@ -150,6 +159,9 @@ body {
 .card-columns>.card {
     border: none;
     background: none;
+}
+.card{
+  background: #2D3035;
 }
 
 
@@ -237,10 +249,14 @@ body {
 }
 .form-control{
     padding: 0;
+    background: #2D3035;
+    color: #eee;
 }
 .custom-select{
     padding-left: 0.5rem;
     padding-top: 0.1rem;
+    background: #2D3035;
+    color: #eee;
 }
 .form-control:focus,
 .custom-select:focus {
@@ -251,6 +267,7 @@ body {
     font-size: 0.7rem;
     padding: 0.3rem 0 0 0;
     color: #28a745;
+    background: #2D3035;
 }
 
 .w-70-px {
@@ -274,4 +291,12 @@ body {
 }
 .btn:focus {
     box-shadow: none !important;
+}
+.text-muted {
+  color: #8A8D93 !important;
+}
+h5 {
+  text-transform: uppercase;
+  font-weight: 300;
+  font-size: 1rem;
 }

@@ -1,7 +1,7 @@
 Vue.component('card', {
     props: ['title'],
     template: `
-    <div class="card mb-3">
+    <div class="card mb-4">
         <h5 class="text-muted">{{ title }}</h5>
         <slot></slot>
     </div>
