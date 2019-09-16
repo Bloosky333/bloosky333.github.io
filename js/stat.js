@@ -26,16 +26,16 @@ Vue.component('stat', {
             <h6 class="text-capitalize m-0">{{ stat.title }}</h6>
             <div class="d-flex align-items-center">
                 <div class="input-group mr-auto">
-                    <input type="text" class="form-control w-40-px text-right pr-2" v-model="stat.current" :class="{'text-danger': !stat.current}">
+                    <input type="text" class="form-control w-50-px text-center pr-2" v-model="stat.current" :class="{'text-danger': !stat.current}">
                     <div class="input-group-append">
                         <span class="input-group-text w-30-px">/ {{ stat.max }}</span>
                     </div>
                 </div>
-                <div class="input-group flex-nowrap w-auto">
+                <div class="input-group flex-nowrap custom-select-wrapper w-auto">
                     <div class="input-group-prepend">
                         <span class="input-group-text">+/-</span>
                     </div>
-                    <select class="custom-select w-70-px" v-model="stat.mod">
+                    <select class="custom-select w-60-px" v-model="stat.mod">
                         <option v-for="index in 50" :key="index" :value="index">{{ index }}</option>
                     </select>
                 </div>

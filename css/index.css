@@ -21,7 +21,7 @@ body {
     border: none;
 }
 .menuDropdown>.dropdown-menu a{
-  color: #eee;
+    color: #eee;
 }
 
 /*Status Bar ===============================================*/
@@ -131,11 +131,6 @@ body {
 }
 
 /*CARD ===============================================*/
-@media (max-width: 575.98px) {
-    .card-columns {
-
-    }
-}
 @media (min-width: 576px) and (max-width: 767.98px) {
     .card-columns {
         column-count: 1;
@@ -161,7 +156,7 @@ body {
     background: none;
 }
 .card{
-  background: #2D3035;
+    background: #2D3035;
 }
 
 
@@ -235,9 +230,24 @@ body {
 }
 
 /*MISC ===============================================*/
+.custom-select-wrapper::after {
+    font-family: "Font Awesome 5 Free";
+    content: "\f0dc";
+    -webkit-font-smoothing: antialiased;
+    font-style: normal;
+    font-weight: 900;
+    font-variant: normal;
+    text-rendering: auto;
+    position: absolute;
+    top: 8px;
+    right: 5px;
+    color: #FFF;
+}
 .form-control,
 .custom-select,
-.input-group-text{
+.input-group-text,
+.form-control:focus,
+.custom-select:focus {
     border-top: none;
     border-left: none;
     border-right: none;
@@ -246,33 +256,37 @@ body {
     -moz-border-radius: 0px;
     border-radius: 0px;
     padding-bottom: 0;
+    font-weight: bold;
+    background: #2D3035;
+    color: #eee;
+    box-shadow: none;
 }
 .form-control{
     padding: 0;
-    background: #2D3035;
-    color: #eee;
 }
 .custom-select{
     padding-left: 0.5rem;
     padding-top: 0.1rem;
-    background: #2D3035;
-    color: #eee;
+    padding-right: 22px;
+    position: relative;
+    text-align-last: center;
+    text-align: center;
 }
-.form-control:focus,
-.custom-select:focus {
-    box-shadow: none;
-}
+
 .input-group-text {
     background: none;
     font-size: 0.7rem;
     padding: 0.3rem 0 0 0;
     color: #28a745;
-    background: #2D3035;
 }
 
 .w-70-px {
     width: 70px !important;
     flex: 0 0 70px !important;
+}
+.w-60-px {
+    width: 60px !important;
+    flex: 0 0 60px !important;
 }
 .w-50-px {
     width: 50px !important;
@@ -293,10 +307,13 @@ body {
     box-shadow: none !important;
 }
 .text-muted {
-  color: #8A8D93 !important;
+    color: #8A8D93 !important;
 }
 h5 {
-  text-transform: uppercase;
-  font-weight: 300;
-  font-size: 1rem;
+    text-transform: uppercase;
+    font-weight: 300;
+    font-size: 1rem;
+}
+h6 {
+    font-weight: 400;
 }
